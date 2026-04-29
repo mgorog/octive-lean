@@ -1,0 +1,28 @@
+name = "octive-lean"
+version = "0.1.0"
+defaultTargets = ["octive-lean"]
+
+[[require]]
+name = "proofwidgets"
+git = "https://github.com/leanprover-community/ProofWidgets4"
+rev = "v0.0.98"
+
+[[lean_lib]]
+name = "OctiveLean"
+
+[[lean_lib]]
+name = "NumericalTutorial"
+
+[[lean_lib]]
+name = "RosettaStone"
+
+[[lean_lib]]
+name = "PlotDemo"
+
+[[lean_exe]]
+name = "octive-lean"
+root = "Main"
+
+[[lean_exe]]
+name = "corpus-check"
+root = "CorpusCheck"

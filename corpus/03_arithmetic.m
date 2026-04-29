@@ -1,0 +1,5 @@
+disp(2 + 3)
+disp(7 - 4)
+disp(6 * 7)
+disp(20 / 5)
+disp(2 ^ 10)
