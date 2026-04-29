@@ -1,0 +1,19 @@
+* text=auto eol=lf
+
+*.lean         text
+*.toml         text
+*.md           text
+*.m            text
+*.expected     text
+*.yml          text
+*.json         text
+*.js           text
+
+*.png          binary
+*.jpg          binary
+*.svg          text
+
+# Hide vendored & generated paths from diffs and language stats
+octave-upstream/  linguist-vendored linguist-generated
+.lake/            linguist-generated
+widget/js/        linguist-vendored
