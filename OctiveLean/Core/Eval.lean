@@ -38,7 +38,10 @@ def eval : Nat → Env → Term → Option (Value × Env)
       | _ => none
   | n + 1, env, .letIn x e1 e2 =>
       match eval n env e1 with
-      | some (v1, env1) => eval n (env1.extend x v1) e2
+      | some (v1, env1) =>
+          match eval n (env1.extend x v1) e2 with
+          | some (v2, _) => some (v2, env1)   -- scope-restore: discard body's post-env
+          | none         => none
       | none            => none
   | n + 1, env, .ifte ec e1 e2 =>
       match eval n env ec with
@@ -113,7 +116,11 @@ theorem eval_sound :
       simp only [eval] at heq
       split at heq
       next v1 env1 heq1 =>
-        exact .letInR (ih _ _ _ _ heq1) (ih _ _ _ _ heq)
+        split at heq
+        next v2 _ heq2 =>
+          simp at heq; obtain ⟨rfl, rfl⟩ := heq
+          exact .letInR (ih _ _ _ _ heq1) (ih _ _ _ _ heq2)
+        next => simp at heq
       next => simp at heq
     | ifte ec e1 e2 =>
       simp only [eval] at heq

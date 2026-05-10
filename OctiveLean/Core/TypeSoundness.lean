@@ -92,4 +92,22 @@ theorem HasTypeV.vClos_of_env
     exact hVT'
   · exact hb
 
+/-- Inversion of `HasTypeV` for closure values. Exposes the closure's
+    typing context and the function-form `HasTypeEnv`. -/
+theorem HasTypeV.vClos_to_env
+    {x : String} {body : Term} {env : Env} {T : Ty}
+    (h : HasTypeV (.vClos x body env) T) :
+    ∃ Γ T_arg T_ret, T = .arrow T_arg T_ret ∧
+      HasTypeEnv env Γ ∧
+      HasType (Γ.extend x T_arg) body T_ret := by
+  cases h with
+  | vClos he_dom he_typed hBody =>
+    refine ⟨_, _, _, rfl, ?_, hBody⟩
+    intro y T_y hLy
+    have hdom := he_dom y T_y hLy
+    cases hLE : env.lookup y with
+    | none => rw [hLE] at hdom; cases hdom
+    | some v_y =>
+      exact ⟨v_y, rfl, he_typed y T_y v_y hLy hLE⟩
+
 end OctiveLean.Core

@@ -43,7 +43,8 @@ theorem BigStep.deterministic
     | letInR D1' D2' =>
       have ⟨hv1, hE1⟩ := ih1 D1'
       subst hv1; subst hE1
-      exact ih2 D2'
+      have ⟨hv2, _⟩ := ih2 D2'
+      exact ⟨hv2, rfl⟩
   | ifTR _ _ ihc iht =>
     cases D₂ with
     | ifTR Dc' Dt' =>

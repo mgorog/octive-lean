@@ -73,7 +73,7 @@ inductive BigStep : Env → Term → Value → Env → Prop where
   | letInR   {env x e1 e2 v1 v2 env1 env2}
              (D1 : BigStep env  e1 v1 env1)
              (D2 : BigStep (env1.extend x v1) e2 v2 env2) :
-      BigStep env (.letIn x e1 e2) v2 env2
+      BigStep env (.letIn x e1 e2) v2 env1
   | ifTR     {env ec e1 e2 v env1 env2}
              (Dc : BigStep env  ec (.vBool true) env1)
              (Dt : BigStep env1 e1 v env2) :
