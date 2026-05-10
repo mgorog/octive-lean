@@ -16,3 +16,9 @@ import OctiveLean.PlotWidget
 import OctiveLean.PlotBuiltins
 import OctiveLean.DSL
 import OctiveLean.Corpus
+import OctiveLean.Core.Syntax
+import OctiveLean.Core.Semantics
+import OctiveLean.Core.Determinism
+import OctiveLean.Core.Eval
+import OctiveLean.Core.Types
+import OctiveLean.Core.TypeSoundness
