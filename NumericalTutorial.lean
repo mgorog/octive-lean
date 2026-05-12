@@ -1,4 +1,6 @@
+
 /-!
+
 # Numerical Analysis: MATLAB/Octave Concepts Through Lean Proof
 
 This file formalizes the algorithms from `tutorial.m`.  For each method:
@@ -56,6 +58,8 @@ For any commutative ring, `hornerR coeffs x = Σᵢ coeffs[i] · xⁱ`.
 `sorry`'d because writing Σᵢ cleanly needs `Finset` from Mathlib.
 The ring arithmetic itself closes with `ring`.
 -/
+
+
 theorem horner_correct : True := trivial  -- placeholder for the full statement
 
 

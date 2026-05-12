@@ -398,15 +398,22 @@ syntax (name := octaveRun) "octave!" "{" octStmt* "}" : command
 macro_rules
   | `(command| octave! { $stmts:octStmt* }) => do
       let stmtTerms ← stmts.mapM convStmt
-      let result : Lean.TSyntax `command ← `(#html (show IO ProofWidgets.Html from do
-          let plotBuf ← IO.mkRef (#[] : Array OctiveLean.Figure)
-          let env := OctiveLean.PlotBuiltins.register plotBuf
-                     (OctiveLean.registerAllBuiltins OctiveLean.Env.empty)
-          match ← OctiveLean.runProgram #[$stmtTerms,*] env with
-          | .ok _    => pure ()
-          | .error e => IO.eprintln s!"runtime error: {e}"
-          let figs ← plotBuf.get
-          return OctiveLean.PlotWidget.render figs))
+      let result : Lean.TSyntax `command ← `(#html (show Lean.Elab.Command.CommandElabM ProofWidgets.Html from do
+          let opts ← Lean.getOptions
+          let theme : String := opts.get `octive.plotTheme "auto"
+          let (figs, errMsg) ← (do
+            let plotBuf ← IO.mkRef (#[] : Array OctiveLean.Figure)
+            let env := OctiveLean.PlotBuiltins.register plotBuf
+                       (OctiveLean.registerAllBuiltins OctiveLean.Env.empty)
+            let errMsg : Option String ← try
+                match ← OctiveLean.runProgram #[$stmtTerms,*] env with
+                | .ok _    => pure none
+                | .error e => pure (some s!"runtime error: {e}")
+              catch ex =>
+                pure (some s!"IO exception: {ex.toString}")
+            let figs ← plotBuf.get
+            pure (figs, errMsg) : IO _)
+          return OctiveLean.PlotWidget.renderWithError figs theme errMsg))
       return (⟨mkCanonicalSyntax result.raw⟩ : Lean.TSyntax `command)
 
 /-- `octave_program! name { stmts }` — bind the parsed AST to a Lean def. -/

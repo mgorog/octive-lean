@@ -2,18 +2,30 @@ import ProofWidgets.Data.Html
 import ProofWidgets.Component.Basic
 import OctiveLean.PlotData
 
-/-! Renders plot figures as an interactive widget in the infoview.
-    Figure data is encoded as JSON and passed to the React component
-    in `widget/js/interactivePlot.js`, which handles zoom, pan, and hover. -/
+/-! Renders plot figures via Plotly.js in the infoview. Figure data is
+    JSON-encoded and passed to a React component bundled with Plotly
+    (see `widget/js/interactivePlot.js`). The component handles
+    pan/zoom/legend/tooltips and translates our markType taxonomy to
+    Plotly trace types. -/
 
 namespace OctiveLean.PlotWidget
 
 open ProofWidgets Lean
 
+-- ── User-facing Lean option ───────────────────────────────────────
+
+register_option octive.plotTheme : String := {
+  defValue := "auto"
+  descr    := "Plot theme used by the `octave!` macro. \
+               \"auto\" detects VSCode's theme (vscode-dark class or \
+               prefers-color-scheme); \"dark\" and \"light\" force the choice."
+}
+
 -- ── Props ─────────────────────────────────────────────────────────
 
 structure OctivePlotProps where
   figures : Array Json
+  theme   : String
   deriving Server.RpcEncodable
 
 -- ── Widget module ─────────────────────────────────────────────────
@@ -48,7 +60,8 @@ private def encodeSeries (s : PlotSeries) : Json :=
     ("label",    Json.str s.label),
     ("color",    Json.str s.color),
     ("gridRows", toJson s.gridRows),
-    ("gridCols", toJson s.gridCols)
+    ("gridCols", toJson s.gridCols),
+    ("nbins",    toJson s.nbins)
   ]
 
 private def encodeFigure (fig : Figure) : Json :=
@@ -61,13 +74,33 @@ private def encodeFigure (fig : Figure) : Json :=
     ("series",  Json.arr (fig.series.map encodeSeries))
   ]
 
--- ── Entry point ───────────────────────────────────────────────────
+-- ── Entry points ──────────────────────────────────────────────────
 
-def render (figs : Array Figure) : Html :=
+def render (figs : Array Figure) (theme : String := "auto") : Html :=
   if figs.isEmpty then Html.text ""
   else
     Html.ofComponent OctivePlotWidget
-      { figures := figs.map encodeFigure }
+      { figures := figs.map encodeFigure, theme }
       #[]
+
+/-- Render figures and, if a message is present, an error block beneath.
+    Used by the `octave!` macro so runtime failures surface inside the
+    infoview panel instead of getting eaten by `IO.eprintln`. -/
+def renderWithError (figs : Array Figure) (theme : String) (err : Option String) : Html :=
+  let chart := render figs theme
+  match err with
+  | none     => chart
+  | some msg =>
+      let errStyle : Json := Json.mkObj
+        [ ("color",       Json.str "#d44")
+        , ("fontFamily",  Json.str "monospace")
+        , ("whiteSpace",  Json.str "pre-wrap")
+        , ("padding",     Json.str "6px 8px")
+        , ("margin",      Json.str "4px 0")
+        , ("borderLeft",  Json.str "3px solid #d44")
+        , ("background",  Json.str "rgba(220,80,80,0.08)") ]
+      let errBox : Html := Html.element "pre" #[("style", errStyle)] #[Html.text msg]
+      if figs.isEmpty then errBox
+      else Html.element "div" #[] #[chart, errBox]
 
 end OctiveLean.PlotWidget

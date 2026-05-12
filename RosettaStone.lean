@@ -122,7 +122,7 @@ octave! {
       y = n * fact(n - 1);
     endif
   endfunction
-  disp(fact(6))
+  disp(fact(12))
 }
 
 -- §13  TRY / CATCH
@@ -160,6 +160,7 @@ octave_program! mySumProgram {
   endfor
   disp(s)
 }
+
 
 #check mySumProgram   -- : Array OctiveLean.Stmt
 #eval mySumProgram.size

@@ -24,6 +24,8 @@ structure PlotSeries where
   -- for surface/contour: grid dimensions (rows × cols)
   gridRows : Nat         := 0
   gridCols : Nat         := 0
+  -- for histogram: bin count (0 = Plotly auto-bin); xData carries raw samples
+  nbins    : Nat         := 0
   deriving Repr, Inhabited
 
 structure Figure where

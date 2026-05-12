@@ -80,25 +80,17 @@ def plotBuiltin (buf : IO.Ref (Array Figure)) (mk : MarkType)
 def histBuiltin (buf : IO.Ref (Array Figure)) (args : Array Value) : IO (Array Value) := do
   let data ← match args with
     | #[v]    => valueToFloats v
-    | #[v, _] => valueToFloats v   -- nbins arg ignored in bin count for now
+    | #[v, _] => valueToFloats v
     | _ => throw (IO.userError "hist: expected 1 or 2 arguments")
-  let nbins := match args.getD 1 (.scalar 10) with
-    | .scalar n => n.toUInt64.toNat.max 2
-    | _ => 10
+  let nbins := match args.getD 1 (.scalar 0) with
+    | .scalar n => n.toUInt64.toNat
+    | _ => 0
   if data.isEmpty then return #[]
-  let lo := data.foldl min data[0]!
-  let hi := data.foldl max data[0]!
-  let bw := if hi == lo then 1.0 else (hi - lo) / nbins.toFloat
-  -- Count elements per bin
-  let counts := Array.range nbins |>.map fun i =>
-    let binLo := lo + i.toFloat * bw
-    let binHi := binLo + bw
-    data.foldl (fun c x => if x >= binLo && (x < binHi || (i == nbins - 1 && x <= binHi)) then c + 1 else c) (0 : Nat)
-  let xs := Array.range nbins |>.map fun i => lo + (i.toFloat + 0.5) * bw
-  let ys := counts.map (fun n => n.toFloat)
+  -- Pass raw samples + requested bin count to Plotly; let it own the binning
+  -- and bar geometry. This avoids reconstructing bin edges client-side.
   let figs ← buf.get
   let color := nextColor figs
-  addSeries buf { xData := xs, yData := ys, markType := .histogram, color }
+  addSeries buf { xData := data, markType := .histogram, color, nbins }
   return #[]
 
 -- ── Metadata builtins ────────────────────────────────────────────
@@ -161,8 +153,8 @@ def plot3Builtin (buf : IO.Ref (Array Figure)) (mk : MarkType)
       let zs ← valueToFloats zv
       let figs ← buf.get
       let color := nextColor figs
-      modifyCurrentFig buf fun f => { f with is3D := true }
       addSeries buf { xData := xs, yData := ys, zData := zs, markType := mk, color }
+      modifyCurrentFig buf fun f => { f with is3D := true }
   | _ => throw (IO.userError "plot3/scatter3: expected 3 numeric vector arguments")
   return #[]
 
@@ -178,8 +170,18 @@ def surfBuiltin (buf : IO.Ref (Array Figure)) (mk : MarkType)
       let zs ← valueToFloats zv
       let figs ← buf.get
       let color := nextColor figs
-      -- Grid dims: prefer matrix shape of z; fall back to xs.size × ys.size
+      -- Grid dims: prefer matrix shape of z; fall back to xs.size × ys.size.
+      -- Special-case: if z is a 1×N row vector aligning with xs (or N×1 with ys),
+      -- expand to the full (ys.size, xs.size) grid so the broadcast logic below
+      -- can replicate it along the missing axis — this is what users mean when
+      -- they call surf(x, y, f(x)) without first running meshgrid.
       let (rows, cols) := match zv with
+        | .matrix 1 c _ =>
+            if c == xs.size && ys.size > 1 then (ys.size, c)
+            else (1, c)
+        | .matrix r 1 _ =>
+            if r == ys.size && xs.size > 1 then (r, xs.size)
+            else (r, 1)
         | .matrix r c _ => (r, c)
         | _ => (ys.size, xs.size)
       -- Build full grid X, Y matching z layout (row-major: row i, col j)
@@ -199,9 +201,9 @@ def surfBuiltin (buf : IO.Ref (Array Figure)) (mk : MarkType)
           (Array.range rows).flatMap fun i =>
             (Array.range cols).map fun _j => zs.getD i 0.0
         else (Array.range n).map fun i => zs.getD i 0.0
-      modifyCurrentFig buf fun f => { f with is3D := true }
       addSeries buf { xData := fullX, yData := fullY, zData := fullZ,
                       markType := mk, color, gridRows := rows, gridCols := cols }
+      modifyCurrentFig buf fun f => { f with is3D := true }
   | _ => throw (IO.userError "surf/mesh/contourf: expected 3 matrix arguments")
   return #[]
 
