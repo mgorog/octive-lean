@@ -1,0 +1,153 @@
+// Octave builtins exposed to the octave! DSL.
+// Each entry: { signature, summary, category }.
+// Keep in sync with OctiveLean/Builtins.lean and OctiveLean/PlotBuiltins.lean.
+
+export interface Builtin {
+  signature: string;
+  summary: string;
+  category: "math" | "matrix" | "stat" | "string" | "io" | "plot" | "symbolic" | "control" | "predicate";
+}
+
+export const BUILTINS: Record<string, Builtin> = {
+  // ── Math ────────────────────────────────────────────────────────
+  abs:    { signature: "abs(x)",         summary: "Absolute value (elementwise).",                                    category: "math" },
+  sqrt:   { signature: "sqrt(x)",        summary: "Square root (elementwise).",                                       category: "math" },
+  exp:    { signature: "exp(x)",         summary: "Exponential e^x (elementwise).",                                   category: "math" },
+  log:    { signature: "log(x)",         summary: "Natural logarithm (elementwise).",                                 category: "math" },
+  log2:   { signature: "log2(x)",        summary: "Base-2 logarithm (elementwise).",                                  category: "math" },
+  log10:  { signature: "log10(x)",       summary: "Base-10 logarithm (elementwise).",                                 category: "math" },
+  sin:    { signature: "sin(x)",         summary: "Sine in radians (elementwise).",                                   category: "math" },
+  cos:    { signature: "cos(x)",         summary: "Cosine in radians (elementwise).",                                 category: "math" },
+  tan:    { signature: "tan(x)",         summary: "Tangent in radians (elementwise).",                                category: "math" },
+  asin:   { signature: "asin(x)",        summary: "Arcsine (elementwise).",                                           category: "math" },
+  acos:   { signature: "acos(x)",        summary: "Arccosine (elementwise).",                                         category: "math" },
+  atan:   { signature: "atan(x)",        summary: "Arctangent (elementwise).",                                        category: "math" },
+  atan2:  { signature: "atan2(y, x)",    summary: "Four-quadrant arctangent of y/x (elementwise).",                   category: "math" },
+  sign:   { signature: "sign(x)",        summary: "Sign of x: -1, 0, or 1 (elementwise).",                            category: "math" },
+  floor:  { signature: "floor(x)",       summary: "Round towards -∞.",                                                category: "math" },
+  ceil:   { signature: "ceil(x)",        summary: "Round towards +∞.",                                                category: "math" },
+  round:  { signature: "round(x)",       summary: "Round to nearest integer.",                                        category: "math" },
+  mod:    { signature: "mod(a, b)",      summary: "Floored modulo (sign follows divisor).",                           category: "math" },
+  rem:    { signature: "rem(a, b)",      summary: "Truncated remainder (sign follows dividend).",                     category: "math" },
+
+  // ── Matrix / array construction ─────────────────────────────────
+  zeros:    { signature: "zeros(r, c)",         summary: "Matrix of zeros, r rows × c cols.",                                category: "matrix" },
+  ones:     { signature: "ones(r, c)",          summary: "Matrix of ones, r rows × c cols.",                                 category: "matrix" },
+  eye:      { signature: "eye(n)",              summary: "n × n identity matrix.",                                           category: "matrix" },
+  linspace: { signature: "linspace(a, b, n)",   summary: "n evenly spaced points from a to b (inclusive).",                  category: "matrix" },
+  rand:     { signature: "rand(r, c)",          summary: "Uniform random matrix in [0, 1).",                                 category: "matrix" },
+  reshape:  { signature: "reshape(M, r, c)",    summary: "Reshape M into r × c with same element count.",                    category: "matrix" },
+  horzcat:  { signature: "horzcat(A, B, ...)",  summary: "Horizontal concatenation (same as `[A B]`).",                      category: "matrix" },
+  vertcat:  { signature: "vertcat(A, B, ...)",  summary: "Vertical concatenation (same as `[A; B]`).",                       category: "matrix" },
+  size:     { signature: "size(M)",             summary: "Returns [rows, cols] of M.",                                       category: "matrix" },
+  rows:     { signature: "rows(M)",             summary: "Number of rows of M.",                                             category: "matrix" },
+  columns:  { signature: "columns(M)",          summary: "Number of columns of M.",                                          category: "matrix" },
+  length:   { signature: "length(v)",           summary: "Largest dimension of v.",                                          category: "matrix" },
+  numel:    { signature: "numel(M)",            summary: "Total number of elements in M.",                                   category: "matrix" },
+  dot:      { signature: "dot(u, v)",           summary: "Dot product of two vectors.",                                      category: "matrix" },
+  norm:     { signature: "norm(v)",             summary: "Euclidean norm of v.",                                             category: "matrix" },
+  linsolve: { signature: "linsolve(A, b)",      summary: "Solve A·x = b. Equivalent to `A \\ b`.",                            category: "matrix" },
+
+  // ── Reductions / stats ──────────────────────────────────────────
+  sum:    { signature: "sum(v)",     summary: "Sum of elements.",                category: "stat" },
+  prod:   { signature: "prod(v)",    summary: "Product of elements.",            category: "stat" },
+  mean:   { signature: "mean(v)",    summary: "Arithmetic mean.",                category: "stat" },
+  max:    { signature: "max(v)",     summary: "Maximum element.",                category: "stat" },
+  min:    { signature: "min(v)",     summary: "Minimum element.",                category: "stat" },
+  any:    { signature: "any(v)",     summary: "True if any element is nonzero.", category: "stat" },
+  all:    { signature: "all(v)",     summary: "True if all elements are nonzero.", category: "stat" },
+
+  // ── Predicates ──────────────────────────────────────────────────
+  isempty:   { signature: "isempty(x)",   summary: "True if x has 0 elements.",          category: "predicate" },
+  iscell:    { signature: "iscell(x)",    summary: "True if x is a cell array.",         category: "predicate" },
+  ischar:    { signature: "ischar(x)",    summary: "True if x is a string.",             category: "predicate" },
+  islogical: { signature: "islogical(x)", summary: "True if x is logical (bool).",        category: "predicate" },
+  isnumeric: { signature: "isnumeric(x)", summary: "True if x is numeric.",              category: "predicate" },
+  isstruct:  { signature: "isstruct(x)",  summary: "True if x is a struct.",             category: "predicate" },
+  logical:   { signature: "logical(x)",   summary: "Convert to logical (bool).",         category: "predicate" },
+  double:    { signature: "double(x)",    summary: "Convert to double (float).",         category: "predicate" },
+  class:     { signature: "class(x)",     summary: "Returns the type name of x as a string.", category: "predicate" },
+
+  // ── Strings ─────────────────────────────────────────────────────
+  strcat:     { signature: "strcat(a, b, ...)", summary: "Concatenate strings.",                category: "string" },
+  strcmp:     { signature: "strcmp(a, b)",      summary: "True if strings a and b are equal.",  category: "string" },
+  strtrim:    { signature: "strtrim(s)",        summary: "Trim leading/trailing whitespace.",   category: "string" },
+  upper:      { signature: "upper(s)",          summary: "Uppercase a string.",                 category: "string" },
+  lower:      { signature: "lower(s)",          summary: "Lowercase a string.",                 category: "string" },
+  num2str:    { signature: "num2str(n)",        summary: "Convert number to string.",           category: "string" },
+  str2num:    { signature: "str2num(s)",        summary: "Parse string as number.",             category: "string" },
+  str2double: { signature: "str2double(s)",     summary: "Parse string as double precision number.", category: "string" },
+
+  // ── I/O / control ───────────────────────────────────────────────
+  disp:    { signature: "disp(x)",                summary: "Display value (no name prefix).",          category: "io" },
+  printf:  { signature: "printf(fmt, ...)",       summary: "Formatted print to stdout.",               category: "io" },
+  fprintf: { signature: "fprintf(fmt, ...)",      summary: "Formatted print to stdout (or fid).",      category: "io" },
+  input:   { signature: "input(prompt)",          summary: "Read user input. NOT IMPLEMENTED in octive-lean — runtime error.", category: "io" },
+  error:   { signature: "error(msg)",             summary: "Raise a runtime error with msg.",          category: "io" },
+  warning: { signature: "warning(msg)",           summary: "Print a warning message.",                 category: "io" },
+  exit:    { signature: "exit",                   summary: "Terminate the program.",                   category: "control" },
+  quit:    { signature: "quit",                   summary: "Alias for exit.",                          category: "control" },
+
+  // ── Curve / interpolation ──────────────────────────────────────
+  polyfit: { signature: "polyfit(x, y, deg)", summary: "Least-squares polynomial fit of degree deg.", category: "stat" },
+  polyval: { signature: "polyval(p, x)",      summary: "Evaluate polynomial p at x.",                  category: "stat" },
+  spline:  { signature: "spline(x, y, xi)",   summary: "Cubic spline interpolation at xi.",            category: "stat" },
+
+  // ── Symbolic toolbox ───────────────────────────────────────────
+  sym:        { signature: "sym('x')",             summary: "Create a symbolic variable (SymPy bridge).",          category: "symbolic" },
+  symfun:     { signature: "symfun(expr, vars)",   summary: "Symbolic function.",                                  category: "symbolic" },
+  syms:       { signature: "syms x y ...",         summary: "Declare several symbolic variables at once.",         category: "symbolic" },
+  diff:       { signature: "diff(f, x)",           summary: "Symbolic derivative of f w.r.t. x.",                  category: "symbolic" },
+  int:        { signature: "int(f, x)",            summary: "Symbolic integral of f w.r.t. x.",                    category: "symbolic" },
+  limit:      { signature: "limit(f, x, a)",       summary: "Symbolic limit of f as x → a.",                       category: "symbolic" },
+  taylor:     { signature: "taylor(f, x, a, n)",   summary: "Taylor expansion of f about a to order n.",           category: "symbolic" },
+  series:     { signature: "series(f, x, a, n)",   summary: "Series expansion of f.",                              category: "symbolic" },
+  solve:      { signature: "solve(eq, x)",         summary: "Symbolic equation solver.",                           category: "symbolic" },
+  dsolve:     { signature: "dsolve(ode, y, x)",    summary: "Symbolic ODE solver.",                                category: "symbolic" },
+  simplify:   { signature: "simplify(expr)",       summary: "Simplify a symbolic expression.",                     category: "symbolic" },
+  expand:     { signature: "expand(expr)",         summary: "Expand products and powers.",                         category: "symbolic" },
+  factor:     { signature: "factor(expr)",         summary: "Factor a polynomial.",                                category: "symbolic" },
+  collect:    { signature: "collect(expr, x)",     summary: "Collect like terms by x.",                            category: "symbolic" },
+  coeffs:     { signature: "coeffs(p, x)",         summary: "Polynomial coefficients in x.",                       category: "symbolic" },
+  subs:       { signature: "subs(expr, x, v)",     summary: "Substitute v for x in expr.",                         category: "symbolic" },
+  rewrite:    { signature: "rewrite(expr, form)",  summary: "Rewrite expr in a target form.",                      category: "symbolic" },
+  isolate:    { signature: "isolate(eq, x)",       summary: "Isolate x in equation eq.",                           category: "symbolic" },
+  lhs:        { signature: "lhs(eq)",              summary: "Left-hand side of an equation.",                      category: "symbolic" },
+  rhs:        { signature: "rhs(eq)",              summary: "Right-hand side of an equation.",                     category: "symbolic" },
+  symsum:     { signature: "symsum(f, k, a, b)",   summary: "Symbolic sum Σ f from k=a to b.",                     category: "symbolic" },
+  piecewise:  { signature: "piecewise(cond, val, ...)", summary: "Piecewise-defined symbolic expression.",         category: "symbolic" },
+  resultant:  { signature: "resultant(p, q, x)",   summary: "Resultant of polynomials p and q.",                   category: "symbolic" },
+  gradient:   { signature: "gradient(f, vars)",    summary: "Symbolic gradient.",                                  category: "symbolic" },
+  divergence: { signature: "divergence(F, vars)",  summary: "Symbolic divergence of a vector field.",              category: "symbolic" },
+  hessian:    { signature: "hessian(f, vars)",     summary: "Symbolic Hessian matrix.",                            category: "symbolic" },
+  jacobian:   { signature: "jacobian(F, vars)",    summary: "Symbolic Jacobian matrix.",                           category: "symbolic" },
+  laplacian:  { signature: "laplacian(f, vars)",   summary: "Symbolic Laplacian Δf.",                              category: "symbolic" },
+  vpa:        { signature: "vpa(expr, n)",         summary: "Variable-precision arithmetic with n digits.",        category: "symbolic" },
+  latex:      { signature: "latex(expr)",          summary: "Render a symbolic expression as LaTeX.",              category: "symbolic" },
+  pretty:     { signature: "pretty(expr)",         summary: "Render symbolic expression in human-readable form.",  category: "symbolic" },
+
+  // ── Plotting ────────────────────────────────────────────────────
+  plot:      { signature: "plot(x, y)",        summary: "Line plot. Adds a series to the current figure.",       category: "plot" },
+  scatter:   { signature: "scatter(x, y)",     summary: "Scatter plot of marker points.",                        category: "plot" },
+  bar:       { signature: "bar(x, y)",         summary: "Bar chart.",                                             category: "plot" },
+  stem:      { signature: "stem(x, y)",        summary: "Stem (lollipop) plot.",                                  category: "plot" },
+  hist:      { signature: "hist(data, nbins)", summary: "Histogram of raw samples with optional bin count.",      category: "plot" },
+  histogram: { signature: "histogram(data, nbins)", summary: "Alias for hist.",                                   category: "plot" },
+  plot3:     { signature: "plot3(x, y, z)",    summary: "3D line plot.",                                          category: "plot" },
+  scatter3:  { signature: "scatter3(x, y, z)", summary: "3D scatter plot.",                                       category: "plot" },
+  surf:      { signature: "surf(x, y, z)",     summary: "3D surface plot (grid z over xy).",                      category: "plot" },
+  mesh:      { signature: "mesh(x, y, z)",     summary: "Mesh surface plot (wireframe variant of surf).",         category: "plot" },
+  waterfall: { signature: "waterfall(x, y, z)", summary: "Waterfall plot — 3D line per grid row.",                category: "plot" },
+  contourf:  { signature: "contourf(x, y, z)", summary: "Filled contour plot.",                                   category: "plot" },
+  figure:    { signature: "figure",            summary: "Begin a new figure for subsequent plot calls.",          category: "plot" },
+  title:     { signature: "title(s)",          summary: "Set the title of the current figure.",                   category: "plot" },
+  xlabel:    { signature: "xlabel(s)",         summary: "Set the x-axis label.",                                  category: "plot" },
+  ylabel:    { signature: "ylabel(s)",         summary: "Set the y-axis label.",                                  category: "plot" },
+  zlabel:    { signature: "zlabel(s)",         summary: "Set the z-axis label.",                                  category: "plot" },
+  legend:    { signature: "legend(...)",       summary: "Set legend entries for the current figure.",             category: "plot" },
+  hold_on:   { signature: "hold_on",           summary: "Start accumulating series in one figure.",               category: "plot" },
+  hold_off:  { signature: "hold_off",          summary: "Stop accumulating; next plot starts a new figure.",      category: "plot" },
+  xlim:      { signature: "xlim([a b])",       summary: "Set the x-axis range.",                                  category: "plot" },
+  ylim:      { signature: "ylim([a b])",       summary: "Set the y-axis range.",                                  category: "plot" },
+  zlim:      { signature: "zlim([a b])",       summary: "Set the z-axis range.",                                  category: "plot" },
+};

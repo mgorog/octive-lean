@@ -1,0 +1,37 @@
+{
+  "name": "octive-lean-dsl",
+  "displayName": "octive-lean DSL",
+  "description": "Octave-flavored completion and hover help inside octave! { ... } blocks in Lean 4 files.",
+  "version": "0.1.0",
+  "publisher": "octive-lean",
+  "engines": { "vscode": "^1.75.0" },
+  "categories": ["Programming Languages", "Other"],
+  "activationEvents": ["onLanguage:lean4", "onLanguage:lean"],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "octive-lean DSL",
+      "properties": {
+        "octiveLean.completionEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Provide Octave-builtin completions inside octave! { ... } blocks."
+        },
+        "octiveLean.hoverEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Provide Octave-builtin hover help inside octave! { ... } blocks."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsc -p .",
+    "watch": "tsc -p . -w"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.75.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
