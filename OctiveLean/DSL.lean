@@ -143,6 +143,12 @@ syntax ident " = " octExpr ";"                            : octStmt
 syntax "[" ident,+ "]" " = " octExpr                      : octStmt
 syntax "[" ident,+ "]" " = " octExpr ";"                  : octStmt
 
+-- Indexed / field assignment.  Lower priority so plain `ident = …` keeps
+-- using the specific rule above; this fires when the LHS is, for instance,
+-- `M(i)`, `M(i, :)`, `s.field`, or `s(i).field`.
+syntax (priority := low) octExpr:max " = " octExpr        : octStmt
+syntax (priority := low) octExpr:max " = " octExpr ";"    : octStmt
+
 -- IF / ELSEIF / ELSE / ENDIF — `end` is also accepted in any terminator slot.
 syntax "if" octExpr octStmt*
        ("elseif" octExpr octStmt*)*
@@ -315,6 +321,13 @@ private partial def convStmt (s : Syntax) : MacroM (TSyntax `term) := do
   | `(octStmt| [ $xs:ident,* ] = $e:octExpr) => do
       let names := xs.getElems.map (fun x => quoteStr x.getId.toString)
       `(Stmt.assign #[$names,*] $(← convExpr e) false)
+  -- Indexed / field assignment (low-priority rule).  LHS shapes we support
+  -- here: `M(i, …)`, `s.field`, `s(i).field`, etc. — anything that maps to
+  -- an `Expr.index` or `Expr.dotIndex`. Anything else gets a clear error.
+  | `(octStmt| $lhs:octExpr = $e:octExpr ;) => do
+      `(Stmt.indexAssign $(← convExpr lhs) $(← convExpr e) true)
+  | `(octStmt| $lhs:octExpr = $e:octExpr) => do
+      `(Stmt.indexAssign $(← convExpr lhs) $(← convExpr e) false)
   -- IF (with `endif` or bare `end`)
   | `(octStmt| if $cond:octExpr $thenB:octStmt*
                $[elseif $eiconds:octExpr $eibodies:octStmt*]*

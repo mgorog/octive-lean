@@ -19,12 +19,12 @@ xlabel("Test Number");
 ylabel("Test Points");
 
 
-fprintf("There are %g scores whose mean value is %linsolve(g, n", n, mean(S));
+fprintf("There are %g scores whose mean value is %g\\n", n, mean(S));
 
 [low, indexlow] = min(S(1:n-1));
 
 A = S;
 A(indexlow) = S(n);
 
-fprintf("The mean of the %g adjusted scores is %linsolve(g, n", n, mean(A));
+fprintf("The mean of the %g adjusted scores is %g\\n", n, mean(A));
 }

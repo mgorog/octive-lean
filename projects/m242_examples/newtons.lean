@@ -46,7 +46,7 @@ while abs(step)>=tol && abs(y)>=tol && k <=maxstep
     -- display iterates only if 6th input argument is present
     if nargin>5
         if show<2
-            fprintf("x_%2i = %g     f(x_%2i) = %linsolve(g, n", k,x,k,y)
+            fprintf("x_%2i = %g     f(x_%2i) = %g\\n", k,x,k,y)
         else
             fprintf("x_%2i = %18.17g     f(x_%2i) = %18.17g\\n", k,x,k,y)
         end

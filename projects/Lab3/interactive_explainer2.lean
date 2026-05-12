@@ -140,8 +140,8 @@ n = 3;
 mult = n^2 + n;                    -- n^2 for A"*P, n for C*result
 add  = n*(n-1) + (n-1);            -- additions in each mult
 
-fprintf("Multiplications: %linsolve(d, n", mult);
-fprintf("Additions      : %linsolve(d, n", add);
+fprintf("Multiplications: %d\\n", mult);
+fprintf("Additions      : %d\\n", add);
 
 disp("\\nGeneral case (n products, n materials):");
 disp("Multiplications: n^2 + n");

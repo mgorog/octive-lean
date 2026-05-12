@@ -51,7 +51,7 @@ ylabel("y-axis")
 
 -- Mouse Selection of Points off Countour Plot
 if nargin == 0
-  N=input("Enter the number of points you you wish to sample off the contour linsolve(plot, n");
+  N=input("Enter the number of points you you wish to sample off the contour plot\\n");
 end
 
 if N > 0

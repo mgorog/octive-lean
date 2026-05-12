@@ -69,7 +69,7 @@ text(x_sol + 0.05*padding, y_sol + 0.05*padding,  sprintf("(%g, %g)", x_sol, y_s
 
 hold off;
 print("-dpng", "plot_workspace.png");
-fprintf("Saved: plot_workspace.linsolve(png, n");
+fprintf("Saved: plot_workspace.png\\n");
 
 -- =============== Plot for Task 1b (prompt) - Example 1 ===============
 A = [1, 1; 1, -1];
@@ -122,7 +122,7 @@ text(x_sol + 0.05*padding, y_sol + 0.05*padding,  sprintf("(%g, %g)", x_sol, y_s
 
 hold off;
 print("-dpng", "plot_prompt.png");
-fprintf("Saved: plot_prompt.linsolve(png, n");
+fprintf("Saved: plot_prompt.png\\n");
 
 -- =============== Plot for Task 1c (function) - Example 1 ===============
 A = [1, 1; 1, -1];
@@ -174,7 +174,7 @@ text(x_sol + 0.05*padding, y_sol + 0.05*padding,  sprintf("(%g, %g)", x_sol, y_s
 
 hold off;
 print("-dpng", "plot_func.png");
-fprintf("Saved: plot_func.linsolve(png, n");
+fprintf("Saved: plot_func.png\\n");
 
 -- =============== Task 2 curves ===============
 w = 1;
@@ -202,5 +202,5 @@ legend("y = sin(w x)",  "y = w x - (w x)^3/6",  "y = w x - (w x)^3/6 + (w x)^5/1
 
 hold off;
 print("-dpng", "plot_curves.png");
-fprintf("Saved: plot_curves.linsolve(png, n");
+fprintf("Saved: plot_curves.png\\n");
 }

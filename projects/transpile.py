@@ -259,11 +259,17 @@ def insert_bracket_commas(src: str) -> str:
 
 
 def to_lean(src: str, name: str) -> str:
+    # Lean's parser rejects tab characters; expand to 4 spaces.
+    src = src.replace("\t", "    ")
+    # Order matters:
+    #   `rewrite_strings` runs before `rewrite_backslash` so the MATLAB
+    #   linear-solve regex does not match `\eta` etc. inside string literals
+    #   (after string-conversion, those backslashes are doubled and escaped).
     body = insert_bracket_commas(
         rewrite_operators(
             rewrite_leading_decimals(
-                rewrite_strings(
-                    rewrite_backslash(
+                rewrite_backslash(
+                    rewrite_strings(
                         join_line_continuations(
                             rewrite_comments(src.rstrip())
                         )

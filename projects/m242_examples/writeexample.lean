@@ -26,7 +26,7 @@ n = length(student);
 
 for ns = 1:n
     fprintf(fid1,"%20s",student(ns).Name);
-	fprintf(fid1,"%6.0f\\n",student(ns).ID);
+    fprintf(fid1,"%6.0f\\n",student(ns).ID);
 end
 
 fclose(fid1);
@@ -46,8 +46,8 @@ A = round(10000*rand(n,m))/100;
 for i = 1:n
     for j = 1:m
       fprintf(fid2,"$%6.2f,   ",A(i,j));
-	end
-	fprintf(fid2,"\\n");
+    end
+    fprintf(fid2,"\\n");
 end
 
 fclose(fid2);

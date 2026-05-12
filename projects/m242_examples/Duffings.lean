@@ -23,7 +23,7 @@ if nargin >6
     plot(T,Y(:,1),"b")
     xlabel("t")
     ylabel("y (position)")
-    title(["Duffings DE from (t_0,y_0,v_0) = (",num2str(tau_0)," ,",num2str(Y0(1)), " ",num2str(Y0(2)),"): linsolve(parameters, eta = ",num2str(eta), "eps = ",num2str(epsilon),"\\sigma = ",num2str(sigma)])
+    title(["Duffings DE from (t_0,y_0,v_0) = (",num2str(tau_0)," ,",num2str(Y0(1)), " ",num2str(Y0(2)),"): parameters \\eta = ",num2str(eta), "eps = ",num2str(epsilon),"\\sigma = ",num2str(sigma)])
     subplot(3,1,2)
     plot(T,Y(:,2),"r")
     xlabel("t")

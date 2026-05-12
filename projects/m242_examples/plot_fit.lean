@@ -17,7 +17,7 @@ function [reg_slope,reg_intcpt,r,rsq,resid,xbar,ybar,stdx,stdy] = plot_fit(x,y,x
 --          Regression coef in yhat = a+bx, correlations r and rsq=r^2,
 --          plot of data with y=a+bx and (xbar,ybar
 --          plot residuals
--- Sample >>plot_fit(-1:0.1:10,@cos,"\\theta (rad)","y-axis","y = linsolve(cos, theta",6)
+-- Sample >>plot_fit(-1:0.1:10,@cos,"\\theta (rad)","y-axis","y = cos \\theta",6)
 -- Date: 2-24-2025    Programmer; B. Lundberg
 
 -- Establish plotting x interval

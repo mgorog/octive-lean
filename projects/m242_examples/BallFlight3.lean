@@ -51,7 +51,7 @@ else
     Accx=Acc(1); 
 end
 rho  = 1.062 ; -- air density in kg/m^3
-visc_d =1.64; -- dynamic viscocity (1e-5 Ns/m^2)	
+visc_d =1.64; -- dynamic viscocity (1e-5 Ns/m^2)    
 g = Accy; -- m/s^2 at h =1500;
 h=y0;
 

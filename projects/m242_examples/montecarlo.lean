@@ -40,7 +40,7 @@ for k=1:n
         plot(point(1,1), point(2,1),"r.")
         -- Find and count the ones inside the quarter circle
     end
-    title(["A Monte Carlo Estimate linsolve(of, pi is  ", num2str(mcpi)])
+    title(["A Monte Carlo Estimate of \\pi is  ", num2str(mcpi)])
     pause(0.1)
 end
 
@@ -48,7 +48,7 @@ end
 mcpi = 4*count/n;
 
 -- Lable plot of random points
-title(["A Monte Carlo Estimate linsolve(of, pi is  ", num2str(mcpi)])
+title(["A Monte Carlo Estimate of \\pi is  ", num2str(mcpi)])
 xlabel("x-axis")
 ylabel("y-axis")
 hold off

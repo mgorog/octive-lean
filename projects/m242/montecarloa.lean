@@ -32,7 +32,7 @@ mcpi = 4*count/n;
 
 -- Plot the random points
 plot(points(1,:), points(2,:),"g.",points(1,inside),points(2,inside),"r.")
-title(["A Monte Carlo Estimate linsolve(of, pi is  ", num2str(mcpi)])
+title(["A Monte Carlo Estimate of \\pi is  ", num2str(mcpi)])
 xlabel("x-axis")
 ylabel("y-axis")
 }
