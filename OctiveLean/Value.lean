@@ -53,6 +53,7 @@ mutual
     | struct   : Array (String × Value) → Value
     | fn       : FuncVal → Value
     | range    : Float → Float → Float → Value      -- start step stop (lazy)
+    | sym      : (srepr : String) → (pretty : String) → Value  -- SymPy expression (srepr round-trips, pretty for display)
     | empty    : Value                              -- []
 
   /-- A callable function value -/
@@ -98,6 +99,7 @@ def Value.typeName : Value → String
   | .struct _                     => "struct"
   | .fn _                         => "function_handle"
   | .range _ _ _                  => "range"
+  | .sym _ _                      => "sym"
   | .empty                        => "[]"
 
 /-! Utility functions -/
@@ -141,6 +143,7 @@ def Value.shape : Value → Nat × Nat
   | .struct _       => (1, 1)
   | .fn _           => (1, 1)
   | .range s st e   => (1, (Value.rangeToArray s st e).size)
+  | .sym _ _        => (1, 1)
   | .empty          => (0, 0)
 
 /-- Format a Float as Octave does: no trailing .0 for integers, reasonable precision -/
@@ -203,6 +206,7 @@ def Value.display (name : String) : Value → String
       else
         let elems := data.toList.map formatFloat |> String.intercalate "   "
         s!"{name} =\n\n   {elems}\n"
+  | .sym _ p => s!"{name} = (sym) {p}"
   | .empty => s!"{name} = [](0x0)"
   | .cmatrix r c _ => s!"{name} = <{r}x{c} complex matrix>"
 
@@ -227,6 +231,7 @@ def Value.printStr : Value → String
         String.intercalate "" elems
       s!"\n{String.intercalate "\n" rows}\n"
   | .string s    => s
+  | .sym _ p     => p
   | v => v.display ""
 
 end OctiveLean

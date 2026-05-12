@@ -1,6 +1,7 @@
 import OctiveLean.Value
 import OctiveLean.Env
 import OctiveLean.Error
+import OctiveLean.SymPyBridge
 
 namespace OctiveLean
 
@@ -95,12 +96,14 @@ private def fmtFloat (spec : Char) (prec : Option Nat) (f : Float) : String :=
   let p := prec.getD (if spec == 'g' then 6 else 6)
   match spec with
   | 'f' =>
-      -- fixed-point with p decimal places
+      -- fixed-point with p decimal places (sign-prepend; format absolute value)
       let scale := Float.ofNat (10 ^ p)
-      let rounded := Float.round (f * scale) / scale
-      let intPart := if rounded < 0.0 then (-rounded).floor else rounded.floor
-      let fracPart := Float.round ((rounded - (if rounded < 0.0 then -intPart else intPart)) * scale)
-      let intStr := if f < 0.0 then "-" ++ toString intPart.toUInt64 else toString intPart.toUInt64
+      let absF := f.abs
+      let rounded := Float.round (absF * scale) / scale
+      let intPart := rounded.floor
+      let fracPart := Float.round ((rounded - intPart) * scale)
+      let signStr := if f < 0.0 then "-" else ""
+      let intStr := signStr ++ toString intPart.toUInt64
       let fracStr := toString fracPart.toUInt64
       let fracPadded := String.ofList (List.replicate (p - fracStr.length) '0') ++ fracStr
       if p == 0 then intStr else intStr ++ "." ++ fracPadded
@@ -214,6 +217,7 @@ def registerAllBuiltins (env : Env) : Env :=
             | .boolean _ | .boolMat _ _ _ => "logical"
             | .string _  => "char"   | .cell _ _ _ => "cell"
             | .struct _  => "struct" | .fn _ => "function_handle"
+            | .sym _ _   => "sym"
           return #[Value.string cls]
       | none => return #[Value.string "unknown"])
   |>.registerBuiltin "isnumeric" (fun (args : Array Value) => do
@@ -404,8 +408,17 @@ def registerAllBuiltins (env : Env) : Env :=
   -- ── Type conversion ───────────────────────────────────────────────────────
   |>.registerBuiltin "double" (fun (args : Array Value) => do
       match args[0]? with
-      | some v => return #[Value.scalar (← asFloat "double" v)]
-      | none   => return #[Value.empty])
+      | some v =>
+          match v with
+          | Value.sym sr _ =>
+              match (← SymPyBridge.runRaw s!"print(repr(float(({sr}).evalf())))") with
+              | .ok s =>
+                  match parseFloatStr? s.trimAscii.toString with
+                  | some f => return #[Value.scalar f]
+                  | none   => throw (IO.userError s!"double: cannot convert sym '{s}' to float")
+              | .error e => throw (IO.userError s!"double: {e}")
+          | _ => return #[Value.scalar (← asFloat "double" v)]
+      | none => return #[Value.empty])
   |>.registerBuiltin "logical" (fun (args : Array Value) => do
       match args[0]? with
       | some v => return #[Value.boolean ((← asFloat "logical" v) != 0.0)]
@@ -434,5 +447,427 @@ def registerAllBuiltins (env : Env) : Env :=
   |>.registerBuiltin "quit" (fun (_ : Array Value) => do
       IO.Process.exit 0
       return (#[] : Array Value))
+  -- ── Numerical: linear solve, polyfit, polyval, spline ────────────────────
+  |>.registerBuiltin "linsolve" (fun (args : Array Value) => do
+      if args.size < 2 then throw (IO.userError "linsolve: expected (A, b)")
+      match args[0]!.materialize, args[1]!.materialize with
+      | .matrix n m a, .matrix nb _ b =>
+          if n != m || nb != n then
+            throw (IO.userError s!"linsolve: A must be square and match b ({n}×{m} vs b={nb})")
+          let mut M : Array Float := a
+          let mut bv : Array Float := b
+          for i in List.range n do
+            let mut maxRow := i
+            let mut maxV := (M[i * n + i]!).abs
+            for k in List.range (n - i - 1) do
+              let kk := i + 1 + k
+              let v := (M[kk * n + i]!).abs
+              if v > maxV then maxRow := kk; maxV := v
+            if maxRow != i then
+              for j in List.range n do
+                let t := M[i * n + j]!
+                M := M.set! (i * n + j) M[maxRow * n + j]!
+                M := M.set! (maxRow * n + j) t
+              let tb := bv[i]!
+              bv := bv.set! i bv[maxRow]!
+              bv := bv.set! maxRow tb
+            let pivot := M[i * n + i]!
+            if pivot.abs < 1e-15 then
+              throw (IO.userError "linsolve: singular matrix")
+            for k in List.range (n - i - 1) do
+              let kk := i + 1 + k
+              let factor := M[kk * n + i]! / pivot
+              for j in List.range (n - i) do
+                let jj := i + j
+                M := M.set! (kk * n + jj) (M[kk * n + jj]! - factor * M[i * n + jj]!)
+              bv := bv.set! kk (bv[kk]! - factor * bv[i]!)
+          let mut x : Array Float := arrFill n 0.0
+          for ii in List.range n do
+            let i := n - 1 - ii
+            let mut s := bv[i]!
+            for k in List.range (n - i - 1) do
+              let j := i + 1 + k
+              s := s - M[i * n + j]! * x[j]!
+            x := x.set! i (s / M[i * n + i]!)
+          return #[Value.matrix n 1 x]
+      | _, _ => throw (IO.userError "linsolve: expected matrix arguments"))
+  |>.registerBuiltin "polyval" (fun (args : Array Value) => do
+      if args.size < 2 then throw (IO.userError "polyval: expected (c, x)")
+      let c := flattenV args[0]!
+      let xs := flattenV args[1]!
+      if c.isEmpty then throw (IO.userError "polyval: empty coefficients")
+      let eval := fun (x : Float) => Id.run do
+        let mut y := c[0]!
+        for i in List.range (c.size - 1) do
+          y := y * x + c[i + 1]!
+        y
+      let ys : Array Float := xs.map eval
+      match args[1]!.materialize with
+      | .scalar _   => return #[Value.scalar (ys[0]!)]
+      | .matrix r co _ => return #[Value.matrix r co ys]
+      | .range _ _ _ => return #[Value.matrix 1 ys.size ys]
+      | _ => return #[Value.matrix 1 ys.size ys])
+  |>.registerBuiltin "polyfit" (fun (args : Array Value) => do
+      if args.size < 3 then throw (IO.userError "polyfit: expected (x, y, n)")
+      let xs := flattenV args[0]!
+      let ys := flattenV args[1]!
+      let n ← asNat "polyfit" args[2]!
+      let m := xs.size
+      if ys.size != m then throw (IO.userError "polyfit: x and y must be same length")
+      if n + 1 > m then throw (IO.userError s!"polyfit: degree {n} requires at least {n+1} points")
+      -- Build Vandermonde V[i,j] = xs[i]^(n - j)  (i in 0..m, j in 0..n)
+      let cols := n + 1
+      let V : Array Float := Id.run do
+        let mut v := arrFill (m * cols) 0.0
+        for i in List.range m do
+          let mut p := 1.0
+          for k in List.range cols do
+            v := v.set! (i * cols + (n - k)) p
+            p := p * xs[i]!
+        v
+      -- Normal equations: A = V^T V (cols × cols), b = V^T y
+      let A : Array Float := Id.run do
+        let mut a := arrFill (cols * cols) 0.0
+        for i in List.range cols do
+          for j in List.range cols do
+            let mut s := 0.0
+            for k in List.range m do
+              s := s + V[k * cols + i]! * V[k * cols + j]!
+            a := a.set! (i * cols + j) s
+        a
+      let bv : Array Float := Id.run do
+        let mut b := arrFill cols 0.0
+        for i in List.range cols do
+          let mut s := 0.0
+          for k in List.range m do
+            s := s + V[k * cols + i]! * ys[k]!
+          b := b.set! i s
+        b
+      -- Solve A c = bv via in-place Gaussian elimination with partial pivot
+      let mut M := A
+      let mut rhs := bv
+      let nn := cols
+      for i in List.range nn do
+        let mut maxRow := i
+        let mut maxV := (M[i * nn + i]!).abs
+        for k in List.range (nn - i - 1) do
+          let kk := i + 1 + k
+          let v := (M[kk * nn + i]!).abs
+          if v > maxV then maxRow := kk; maxV := v
+        if maxRow != i then
+          for j in List.range nn do
+            let t := M[i * nn + j]!
+            M := M.set! (i * nn + j) M[maxRow * nn + j]!
+            M := M.set! (maxRow * nn + j) t
+          let tb := rhs[i]!
+          rhs := rhs.set! i rhs[maxRow]!
+          rhs := rhs.set! maxRow tb
+        let pivot := M[i * nn + i]!
+        if pivot.abs < 1e-15 then
+          throw (IO.userError "polyfit: singular normal equations")
+        for k in List.range (nn - i - 1) do
+          let kk := i + 1 + k
+          let factor := M[kk * nn + i]! / pivot
+          for j in List.range (nn - i) do
+            let jj := i + j
+            M := M.set! (kk * nn + jj) (M[kk * nn + jj]! - factor * M[i * nn + jj]!)
+          rhs := rhs.set! kk (rhs[kk]! - factor * rhs[i]!)
+      let mut c := arrFill nn 0.0
+      for ii in List.range nn do
+        let i := nn - 1 - ii
+        let mut s := rhs[i]!
+        for k in List.range (nn - i - 1) do
+          let j := i + 1 + k
+          s := s - M[i * nn + j]! * c[j]!
+        c := c.set! i (s / M[i * nn + i]!)
+      return #[Value.matrix 1 nn c])
+  |>.registerBuiltin "spline" (fun (args : Array Value) => do
+      if args.size < 3 then throw (IO.userError "spline: expected (x, y, t)")
+      let xs := flattenV args[0]!
+      let ys := flattenV args[1]!
+      let ts := flattenV args[2]!
+      let n := xs.size
+      if ys.size != n || n < 2 then throw (IO.userError "spline: bad input")
+      let nseg := n - 1
+      let h : Array Float := Id.run do
+        let mut h := arrFill nseg 0.0
+        for i in List.range nseg do h := h.set! i (xs[i+1]! - xs[i]!)
+        h
+      -- Solve tridiagonal for M[1..n-2], with M[0]=M[n-1]=0 (natural)
+      let mut M := arrFill n 0.0
+      if n >= 3 then
+        let inner := n - 2
+        let mut a := arrFill inner 0.0
+        let mut b := arrFill inner 0.0
+        let mut c := arrFill inner 0.0
+        let mut d := arrFill inner 0.0
+        for i in List.range inner do
+          let i1 := i + 1
+          let hL := h[i1 - 1]!
+          let hR := h[i1]!
+          a := a.set! i hL
+          b := b.set! i (2.0 * (hL + hR))
+          c := c.set! i hR
+          d := d.set! i (6.0 * ((ys[i1+1]! - ys[i1]!) / hR - (ys[i1]! - ys[i1-1]!) / hL))
+        -- Thomas algorithm
+        for i in List.range (inner - 1) do
+          let ii := i + 1
+          let factor := a[ii]! / b[i]!
+          b := b.set! ii (b[ii]! - factor * c[i]!)
+          d := d.set! ii (d[ii]! - factor * d[i]!)
+        let mut sol := arrFill inner 0.0
+        sol := sol.set! (inner - 1) (d[inner-1]! / b[inner-1]!)
+        for ii in List.range (inner - 1) do
+          let i := inner - 2 - ii
+          sol := sol.set! i ((d[i]! - c[i]! * sol[i+1]!) / b[i]!)
+        for i in List.range inner do M := M.set! (i + 1) sol[i]!
+      -- Evaluate at each t
+      let evalAt := fun (t : Float) => Id.run do
+        let mut idx := 0
+        for k in List.range nseg do if xs[k]! <= t then idx := k
+        if t > xs[n-1]! then idx := nseg - 1
+        let i := idx
+        let hi := h[i]!
+        let xi := xs[i]!; let xi1 := xs[i+1]!
+        let yi := ys[i]!; let yi1 := ys[i+1]!
+        let Mi := M[i]!; let Mi1 := M[i+1]!
+        let A1 := Mi * (xi1 - t)^3.0 / (6.0 * hi)
+        let A2 := Mi1 * (t - xi)^3.0 / (6.0 * hi)
+        let A3 := (yi / hi - Mi * hi / 6.0) * (xi1 - t)
+        let A4 := (yi1 / hi - Mi1 * hi / 6.0) * (t - xi)
+        A1 + A2 + A3 + A4
+      let out : Array Float := ts.map evalAt
+      match args[2]!.materialize with
+      | .scalar _ => return #[Value.scalar out[0]!]
+      | .matrix r co _ => return #[Value.matrix r co out]
+      | .range _ _ _ => return #[Value.matrix 1 out.size out]
+      | _ => return #[Value.matrix 1 out.size out])
+  -- ── Symbolic Math (SymPy bridge) ─────────────────────────────────────────
+  -- Architecture mirrors GNU Octave's `symbolic` package: each builtin is a
+  -- thin wrapper that converts arguments to a Python expression and forwards
+  -- to a persistent SymPy subprocess. See `OctiveLean/SymPyBridge.lean`.
+  |>.registerBuiltin "sym" (fun (args : Array Value) => do
+      match args[0]? with
+      | some v =>
+          let py ← SymPyBridge.toSympy v
+          return #[← SymPyBridge.emit py]
+      | none => throw (IO.userError "sym: expected 1 argument"))
+  |>.registerBuiltin "syms" (fun (args : Array Value) => do
+      -- Returns one Sym per argument — invoked as `[x,y,z] = syms('x','y','z')`.
+      let mut out : Array Value := #[]
+      for a in args do
+        match a with
+        | .string s => out := out.push (← SymPyBridge.emit s!"symbols('{s}')")
+        | _         => throw (IO.userError "syms: expected string arg")
+      return out)
+  |>.registerBuiltin "diff" (fun (args : Array Value) => do
+      match args.size with
+      | 0 => throw (IO.userError "diff: expected at least 1 argument")
+      | 1 =>
+          let f ← SymPyBridge.toSympy args[0]!
+          return #[← SymPyBridge.emit s!"diff({f})"]
+      | _ =>
+          let f ← SymPyBridge.toSympy args[0]!
+          let v ← SymPyBridge.toSympy args[1]!
+          if h : args.size >= 3 then
+            let n ← SymPyBridge.toSympy args[2]!
+            return #[← SymPyBridge.emit s!"diff({f}, {v}, {n})"]
+          else
+            return #[← SymPyBridge.emit s!"diff({f}, {v})"])
+  |>.registerBuiltin "int" (fun (args : Array Value) => do
+      match args.size with
+      | 0 => throw (IO.userError "int: expected at least 1 argument")
+      | 1 =>
+          let f ← SymPyBridge.toSympy args[0]!
+          return #[← SymPyBridge.emit s!"integrate({f})"]
+      | 2 =>
+          let f ← SymPyBridge.toSympy args[0]!
+          let v ← SymPyBridge.toSympy args[1]!
+          return #[← SymPyBridge.emit s!"integrate({f}, {v})"]
+      | _ =>
+          -- int(f, x, a, b) — definite integral
+          let f ← SymPyBridge.toSympy args[0]!
+          let v ← SymPyBridge.toSympy args[1]!
+          let a ← SymPyBridge.toSympy args[2]!
+          let b ← SymPyBridge.toSympy args[3]!
+          return #[← SymPyBridge.emit s!"integrate({f}, ({v}, {a}, {b}))"])
+  |>.registerBuiltin "subs" (fun (args : Array Value) => do
+      if args.size < 3 then throw (IO.userError "subs: expected (expr, var, val)")
+      let f ← SymPyBridge.toSympy args[0]!
+      let v ← SymPyBridge.toSympy args[1]!
+      let r ← SymPyBridge.toSympy args[2]!
+      return #[← SymPyBridge.emit s!"({f}).subs({v}, {r})"])
+  |>.registerBuiltin "simplify" (fun (args : Array Value) => do
+      let f ← SymPyBridge.toSympy args[0]!
+      return #[← SymPyBridge.emit s!"simplify({f})"])
+  |>.registerBuiltin "expand" (fun (args : Array Value) => do
+      let f ← SymPyBridge.toSympy args[0]!
+      return #[← SymPyBridge.emit s!"expand({f})"])
+  |>.registerBuiltin "factor" (fun (args : Array Value) => do
+      let f ← SymPyBridge.toSympy args[0]!
+      return #[← SymPyBridge.emit s!"factor({f})"])
+  |>.registerBuiltin "collect" (fun (args : Array Value) => do
+      if args.size < 2 then throw (IO.userError "collect: expected (expr, var)")
+      let f ← SymPyBridge.toSympy args[0]!
+      let v ← SymPyBridge.toSympy args[1]!
+      return #[← SymPyBridge.emit s!"collect({f}, {v})"])
+  |>.registerBuiltin "solve" (fun (args : Array Value) => do
+      match args.size with
+      | 0 => throw (IO.userError "solve: expected at least 1 argument")
+      | 1 =>
+          let f ← SymPyBridge.toSympy args[0]!
+          return #[← SymPyBridge.emit s!"solve({f})"]
+      | _ =>
+          let f ← SymPyBridge.toSympy args[0]!
+          let v ← SymPyBridge.toSympy args[1]!
+          return #[← SymPyBridge.emit s!"solve({f}, {v})"])
+  |>.registerBuiltin "taylor" (fun (args : Array Value) => do
+      match args.size with
+      | 0 => throw (IO.userError "taylor: expected at least 1 argument")
+      | 1 =>
+          let f ← SymPyBridge.toSympy args[0]!
+          return #[← SymPyBridge.emit s!"series({f}).removeO()"]
+      | 2 =>
+          let f ← SymPyBridge.toSympy args[0]!
+          let v ← SymPyBridge.toSympy args[1]!
+          return #[← SymPyBridge.emit s!"series({f}, {v}).removeO()"]
+      | _ =>
+          let f ← SymPyBridge.toSympy args[0]!
+          let v ← SymPyBridge.toSympy args[1]!
+          let a ← SymPyBridge.toSympy args[2]!
+          if h : args.size >= 4 then
+            let n ← SymPyBridge.toSympy args[3]!
+            return #[← SymPyBridge.emit s!"series({f}, {v}, {a}, {n}).removeO()"]
+          else
+            return #[← SymPyBridge.emit s!"series({f}, {v}, {a}).removeO()"])
+  |>.registerBuiltin "limit" (fun (args : Array Value) => do
+      if args.size < 3 then throw (IO.userError "limit: expected (expr, var, point)")
+      let f ← SymPyBridge.toSympy args[0]!
+      let v ← SymPyBridge.toSympy args[1]!
+      let p ← SymPyBridge.toSympy args[2]!
+      if h : args.size >= 4 then
+        match args[3]! with
+        | .string "left"  => return #[← SymPyBridge.emit s!"limit({f}, {v}, {p}, '-')"]
+        | .string "right" => return #[← SymPyBridge.emit s!"limit({f}, {v}, {p}, '+')"]
+        | _ => return #[← SymPyBridge.emit s!"limit({f}, {v}, {p})"]
+      else
+        return #[← SymPyBridge.emit s!"limit({f}, {v}, {p})"])
+  |>.registerBuiltin "jacobian" (fun (args : Array Value) => do
+      if args.size < 2 then throw (IO.userError "jacobian: expected (f, vars)")
+      let f ← SymPyBridge.toSympy args[0]!
+      let v ← SymPyBridge.toSympy args[1]!
+      return #[← SymPyBridge.emit s!"Matrix([{f}]).jacobian({v})"])
+  |>.registerBuiltin "gradient" (fun (args : Array Value) => do
+      if args.size < 2 then throw (IO.userError "gradient: expected (f, vars)")
+      let f ← SymPyBridge.toSympy args[0]!
+      let v ← SymPyBridge.toSympy args[1]!
+      return #[← SymPyBridge.emit s!"Matrix([{f}]).jacobian({v}).T"])
+  |>.registerBuiltin "hessian" (fun (args : Array Value) => do
+      if args.size < 2 then throw (IO.userError "hessian: expected (f, vars)")
+      let f ← SymPyBridge.toSympy args[0]!
+      let v ← SymPyBridge.toSympy args[1]!
+      return #[← SymPyBridge.emit s!"hessian({f}, {v})"])
+  |>.registerBuiltin "coeffs" (fun (args : Array Value) => do
+      let f ← SymPyBridge.toSympy args[0]!
+      if h : args.size >= 2 then
+        let v ← SymPyBridge.toSympy args[1]!
+        return #[← SymPyBridge.emit s!"Poly({f}, {v}).all_coeffs()"]
+      else
+        return #[← SymPyBridge.emit s!"Poly({f}).all_coeffs()"])
+  |>.registerBuiltin "lhs" (fun (args : Array Value) => do
+      let f ← SymPyBridge.toSympy args[0]!
+      return #[← SymPyBridge.emit s!"({f}).lhs"])
+  |>.registerBuiltin "rhs" (fun (args : Array Value) => do
+      let f ← SymPyBridge.toSympy args[0]!
+      return #[← SymPyBridge.emit s!"({f}).rhs"])
+  |>.registerBuiltin "latex" (fun (args : Array Value) => do
+      let f ← SymPyBridge.toSympy args[0]!
+      match (← SymPyBridge.runRaw s!"print(latex({f}))") with
+      | .ok s   => return #[Value.string (s.trimAscii.toString)]
+      | .error e => throw (IO.userError s!"latex: {e}"))
+  |>.registerBuiltin "pretty" (fun (args : Array Value) => do
+      let f ← SymPyBridge.toSympy args[0]!
+      match (← SymPyBridge.runRaw s!"print(pretty({f}, use_unicode=False))") with
+      | .ok s   => IO.println s; return #[]
+      | .error e => throw (IO.userError s!"pretty: {e}"))
+  |>.registerBuiltin "vpa" (fun (args : Array Value) => do
+      let f ← SymPyBridge.toSympy args[0]!
+      let n : String := if h : args.size >= 2 then
+          match args[1]! with
+          | .scalar f => toString f.toInt64
+          | _         => "15"
+        else "15"
+      return #[← SymPyBridge.emit s!"N({f}, {n})"])
+  |>.registerBuiltin "symsum" (fun (args : Array Value) => do
+      if args.size < 4 then throw (IO.userError "symsum: expected (expr, var, lo, hi)")
+      let f ← SymPyBridge.toSympy args[0]!
+      let v ← SymPyBridge.toSympy args[1]!
+      let lo ← SymPyBridge.toSympy args[2]!
+      let hi ← SymPyBridge.toSympy args[3]!
+      return #[← SymPyBridge.emit s!"summation({f}, ({v}, {lo}, {hi}))"])
+  |>.registerBuiltin "laplacian" (fun (args : Array Value) => do
+      if args.size < 2 then throw (IO.userError "laplacian: expected (f, vars)")
+      let f ← SymPyBridge.toSympy args[0]!
+      let v ← SymPyBridge.toSympy args[1]!
+      return #[← SymPyBridge.emit s!"sum(diff({f}, _v, 2) for _v in {v})"])
+  |>.registerBuiltin "divergence" (fun (args : Array Value) => do
+      if args.size < 2 then throw (IO.userError "divergence: expected (F, vars)")
+      let f ← SymPyBridge.toSympy args[0]!
+      let v ← SymPyBridge.toSympy args[1]!
+      return #[← SymPyBridge.emit s!"sum(diff(_F[i], {v}[i]) for i, _F in enumerate([{f}] * 1) for i in range(len({v})))"])
+  |>.registerBuiltin "rewrite" (fun (args : Array Value) => do
+      if args.size < 2 then throw (IO.userError "rewrite: expected (expr, target)")
+      let f ← SymPyBridge.toSympy args[0]!
+      let target := match args[1]! with | .string s => s | _ => "sin"
+      return #[← SymPyBridge.emit s!"({f}).rewrite({target})"])
+  |>.registerBuiltin "resultant" (fun (args : Array Value) => do
+      if args.size < 2 then throw (IO.userError "resultant: expected (p, q[, var])")
+      let p ← SymPyBridge.toSympy args[0]!
+      let q ← SymPyBridge.toSympy args[1]!
+      if h : args.size >= 3 then
+        let v ← SymPyBridge.toSympy args[2]!
+        return #[← SymPyBridge.emit s!"resultant({p}, {q}, {v})"]
+      else
+        return #[← SymPyBridge.emit s!"resultant({p}, {q})"])
+  |>.registerBuiltin "series" (fun (args : Array Value) => do
+      let f ← SymPyBridge.toSympy args[0]!
+      if h : args.size >= 2 then
+        let v ← SymPyBridge.toSympy args[1]!
+        return #[← SymPyBridge.emit s!"series({f}, {v})"]
+      else
+        return #[← SymPyBridge.emit s!"series({f})"])
+  |>.registerBuiltin "isolate" (fun (args : Array Value) => do
+      if args.size < 2 then throw (IO.userError "isolate: expected (eq, var)")
+      let f ← SymPyBridge.toSympy args[0]!
+      let v ← SymPyBridge.toSympy args[1]!
+      return #[← SymPyBridge.emit s!"Eq({v}, solve({f}, {v})[0])"])
+  |>.registerBuiltin "symfun" (fun (args : Array Value) => do
+      match args[0]? with
+      | some v =>
+          match v with
+          | Value.string n =>
+              match (← SymPyBridge.runRaw s!"{n} = Function('{n}')") with
+              | .ok _ => return #[← SymPyBridge.emit s!"Function('{n}')"]
+              | .error e => throw (IO.userError s!"symfun: {e}")
+          | _ => throw (IO.userError "symfun: expected name string")
+      | none => throw (IO.userError "symfun: expected name string"))
+  |>.registerBuiltin "dsolve" (fun (args : Array Value) => do
+      let f ← SymPyBridge.toSympy args[0]!
+      if h : args.size >= 2 then
+        let y ← SymPyBridge.toSympy args[1]!
+        return #[← SymPyBridge.emit s!"dsolve({f}, {y})"]
+      else
+        return #[← SymPyBridge.emit s!"dsolve({f})"])
+  |>.registerBuiltin "piecewise" (fun (args : Array Value) => do
+      -- piecewise(cond1, val1, cond2, val2, ...)  →  Piecewise((val1, cond1), ...)
+      let mut parts : Array String := #[]
+      let mut i := 0
+      while h : i + 1 < args.size do
+        let c ← SymPyBridge.toSympy args[i]!
+        let v ← SymPyBridge.toSympy args[i+1]!
+        parts := parts.push s!"({v}, {c})"
+        i := i + 2
+      let body := String.intercalate ", " parts.toList
+      return #[← SymPyBridge.emit s!"Piecewise({body})"])
 
 end OctiveLean

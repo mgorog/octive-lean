@@ -2,6 +2,7 @@ import OctiveLean.Value
 import OctiveLean.Env
 import OctiveLean.Error
 import OctiveLean.AST
+import OctiveLean.SymPyBridge
 
 namespace OctiveLean
 
@@ -89,8 +90,29 @@ private def matMul (r1 c1 : Nat) (d1 : Array Float)
     o
   return .matrix r1 c2 out
 
-private def evalBinOp (op : BinOp) (lv rv : Value) : EvalM Value :=
-  match op with
+private def evalSymBinOp (op : BinOp) (lv rv : Value) : EvalM Value := do
+  let l ← liftM (m := IO) (SymPyBridge.toSympy lv)
+  let r ← liftM (m := IO) (SymPyBridge.toSympy rv)
+  let py := match op with
+    | .add  => s!"({l}) + ({r})"   | .sub  => s!"({l}) - ({r})"
+    | .mul | .emul                 => s!"({l}) * ({r})"
+    | .div | .ediv                 => s!"({l}) / ({r})"
+    | .ldiv | .eldiv               => s!"({r}) / ({l})"
+    | .pow | .epow                 => s!"({l}) ** ({r})"
+    | .lt   => s!"Lt({l}, {r})"    | .le => s!"Le({l}, {r})"
+    | .gt   => s!"Gt({l}, {r})"    | .ge => s!"Ge({l}, {r})"
+    | .eq   => s!"Eq({l}, {r})"    | .ne => s!"Ne({l}, {r})"
+    | .land | .band               => s!"And({l}, {r})"
+    | .lor  | .bor                => s!"Or({l}, {r})"
+  liftM (m := IO) (SymPyBridge.emit py)
+
+private def isSym : Value → Bool
+  | .sym _ _ => true
+  | _ => false
+
+private def evalBinOp (op : BinOp) (lv rv : Value) : EvalM Value := do
+  if isSym lv || isSym rv then evalSymBinOp op lv rv
+  else match op with
   | .add  => ewiseOp (· + ·) lv rv
   | .sub  => ewiseOp (· - ·) lv rv
   | .emul => ewiseOp (· * ·) lv rv
@@ -269,6 +291,9 @@ mutual
         | .scalar f     => return .scalar (-f)
         | .matrix r c d => return .matrix r c (d.map (- ·))
         | .integer iv   => return .scalar (-iv.toFloat)
+        | .sym _ _      =>
+            let s ← liftM (m := IO) (SymPyBridge.toSympy v)
+            liftM (m := IO) (SymPyBridge.emit s!"-({s})")
         | other => throw (.typeError s!"cannot negate {other.typeName}")
     | .uplus => return v
     | .lnot =>

@@ -254,6 +254,7 @@ def Value.tag : Value → String
   | .struct _               => "struct"
   | .fn _                   => "function_handle"
   | .range _ _ _            => "range"
+  | .sym _ _                => "sym"
   | .empty                  => "empty"
 
 theorem litFloat_tag  {env env' f v} (h : BigStepExpr env (.lit (.float f)) v env') : v.tag = "double"  := by cases h; rfl
