@@ -20,7 +20,7 @@ close all;
 A = [2, 3; 4, 5];
 b = [8; 18];
 
-sol = linsolve(A, b;
+sol = linsolve(A, b);
 
 fprintf("\\nTask 1a workspace - Example 2\\n");
 disp("A ="); disp(A);
@@ -28,7 +28,7 @@ disp("b ="); disp(b);
 disp("Solution:"); disp(sol);
 
 figure("visible","off");
-hold on; grid on;
+hold_on(); grid on;
 xlabel("x"); ylabel("y");
 title("Lines and Intersection");
 
@@ -67,7 +67,7 @@ end
 
 text(x_sol + 0.05*padding, y_sol + 0.05*padding,  sprintf("(%g, %g)", x_sol, y_sol));
 
-hold off;
+hold_off();
 print("-dpng", "plot_workspace.png");
 fprintf("Saved: plot_workspace.png\\n");
 
@@ -75,13 +75,13 @@ fprintf("Saved: plot_workspace.png\\n");
 A = [1, 1; 1, -1];
 b = [4; 0];
 
-sol = linsolve(A, b;
+sol = linsolve(A, b);
 
 fprintf("\\nTask 1b prompt - Example 1\\n");
 disp("Solution:"); disp(sol);
 
 figure("visible","off");
-hold on; grid on;
+hold_on(); grid on;
 xlabel("x"); ylabel("y");
 title("Lines and Intersection");
 
@@ -120,7 +120,7 @@ end
 
 text(x_sol + 0.05*padding, y_sol + 0.05*padding,  sprintf("(%g, %g)", x_sol, y_sol));
 
-hold off;
+hold_off();
 print("-dpng", "plot_prompt.png");
 fprintf("Saved: plot_prompt.png\\n");
 
@@ -128,13 +128,13 @@ fprintf("Saved: plot_prompt.png\\n");
 A = [1, 1; 1, -1];
 b = [4; 0];
 
-sol = linsolve(A, b;
+sol = linsolve(A, b);
 
 fprintf("\\nTask 1c function - Example 1\\n");
 disp("Solution:"); disp(sol);
 
 figure("visible","off");
-hold on; grid on;
+hold_on(); grid on;
 xlabel("x"); ylabel("y");
 title("Lines and Intersection");
 
@@ -172,7 +172,7 @@ end
 
 text(x_sol + 0.05*padding, y_sol + 0.05*padding,  sprintf("(%g, %g)", x_sol, y_sol));
 
-hold off;
+hold_off();
 print("-dpng", "plot_func.png");
 fprintf("Saved: plot_func.png\\n");
 
@@ -189,7 +189,7 @@ y2 = w*x - (w*x).^3 / 6;
 y3 = w*x - (w*x).^3 / 6 + (w*x).^5 / 120;
 
 figure("visible","off");
-hold on; grid on;
+hold_on(); grid on;
 xlabel("x"); ylabel("y");
 title("Sine and Taylor Approximations");
 
@@ -200,7 +200,7 @@ plot(x, y3, "g:", "LineWidth", 2);
 
 legend("y = sin(w x)",  "y = w x - (w x)^3/6",  "y = w x - (w x)^3/6 + (w x)^5/120",  "Interpreter", "tex",  "Location", "best");
 
-hold off;
+hold_off();
 print("-dpng", "plot_curves.png");
 fprintf("Saved: plot_curves.png\\n");
 }

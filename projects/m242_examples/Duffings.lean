@@ -7,7 +7,7 @@ open OctiveLean.DSL
 
 octave! {
 function [T,Y] = Duffings(Y0,tau_0,tau_f,eta,epsilon,sigma,PlotFlag)
--- Solve dimensionless Duffings DE for a<= tau <= b
+-- Solve dimensionless Duffings DE for a <= tau <= b
 -- starting from initial state (T0,Y0] (Y0 a column of y0, v0=ydot0)
 -- ending at final state (Tf,Yf)
 -- If PlotFlag is present (any value), a solution plot is made.
@@ -34,8 +34,10 @@ if nargin >6
     xlabel("y (position")
     ylabel("v (velocity)")
     title("phase plot (y,ydot)")
-    hold
+hold_on()
     plot(Y(1,1),Y(1,2),"rp")
-    hold off
+    hold_off()
 end
+end
+
 }

@@ -54,8 +54,16 @@ else
 end
 
 -- initialize algorithm State variables
-tnow=t0;vxnow=vx0;vynow=vy0;xnow=x0;ynow=y0;
-tnow=t0;vxnow=vx0;vynow=vy0;xnow=x0;ynow=y0;
+tnow=t0;
+vxnow=vx0;
+vynow=vy0;
+xnow=x0;
+ynow=y0;
+tnow=t0;
+vxnow=vx0;
+vynow=vy0;
+xnow=x0;
+ynow=y0;
 -- Optional Initial State Display
 if nargin > 6 && prnt_flag >1    -- show current state
     disp("          step        time          x            y          vx           vy")
@@ -84,23 +92,34 @@ for k=1:MaxSteps
     
     -- max height test and capture
     if vynow*vyprev <= 0
-        kymax=k;tmax=tnow;ymax=ynow;xmax=xnow;vxmax=vxnow;vymax=vynow;
+        kymax=k;
+tmax=tnow;
+ymax=ynow;
+xmax=xnow;
+vxmax=vxnow;vymax=vynow;
     end
     if ynow*yprev <= 0   -- ground impact test, capture, quit loop
-        kend=k;yend=yprev;xend=xprev;vxend=vxprev;vyend=vyprev;tend=tprev;
-        break  -- causes jump out of the 'for' loop
+        kend=k;
+yend=yprev;
+xend=xprev;
+vxend=vxprev;
+vyend=vyprev;
+tend=tprev;
+        break  -- causes jump out of the "for" loop
     end
     
     -- Optional Display of Step results
-    if nargin>6 && prnt_flag >1 && rem(k,prnt_flag)==0   -- show current state
+    if nargin>6 && prnt_flag >1 && rem(k,prnt_flag) == 0   -- show current state
         disp([k,tnow,xnow,ynow,vxnow,vynow])
     end 
     
 end
 
 -- Load Output Vars [Tmax,RVmax,Timp,RVimp]
-Tmax=tmax; RVmax=[xmax, ymax, vxmax,vymax]';
-Timp=tend; RVimp=[xend,yend,vxend,vyend]';
+Tmax=tmax;
+ RVmax=htranspose([xmax, ymax, vxmax,vymax]);
+Timp=tend;
+ RVimp=htranspose([xend,yend,vxend,vyend]);
 
 -- Optional Special Results Display to screen
 if nargin>6 && prnt_flag >2 

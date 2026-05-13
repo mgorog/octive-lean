@@ -31,85 +31,71 @@ disp("  - Show operation counts");
 disp("Press Enter at each pause to continue.");
 disp("=================================================================");
 
-input("\\nPress Enter to begin -- ================================================================
+input("\\nPress Enter to begin...");
+
+-- ================================================================
 -- Explain the matrix
 -- ================================================================
-datain = [20,   30,   0,   70.5;
-          10,   50,  70,   90.3;
-           5,    7,   2,  120.8;
-         3.1, 1.59, 4.28,    0];
+datain = [20, 30, 0, 70.5; 10, 50, 70, 90.3; 5, 7, 2, 120.8; 3.1, 1.59, 4.28, 0];
 
-disp("\n=== Input Matrix (datain) ===================================");
-disp("Rows 1-3: Products 1-3');
+disp("\\n === Input Matrix (datain) ===================================");
+disp("Rows 1-3: Products 1-3");
 disp("Columns 1-3: Units of material 1-3 per unit of product");
 disp("Column 4: Units produced of each product");
 disp("Row 4 (cols 1-3): Cost per unit of each material");
 disp("Entry (4,4): Will be filled with total production cost");
 disp(datain);
 
-input("\\nPress Enter to see the required function -- ================================================================
+input("\\nPress Enter to see the required function...");
+
+-- ================================================================
 -- Show the function (now with correct transpose)
 -- ================================================================
-disp("\n=== Required Function: production_cost =======================");
-disp("Uses matrix multiplication with transpose (A'') because rows=products, columns=materials');
-code_func = {
-"function dataout = production_cost(datain)"
-"    dataout = datain;"
-"    A = datain(1:3,1:3);   % product rows x material columns"
-"    P = datain(1:3,4);     % production vector"
-"    C = datain(4,1:3);     % cost row vector"
-"    total = C * (A' * P);  % Correct: transpose to sum over products per material"
-"    dataout(4,4) = total;"
-"end"
-};
+disp("\\n === Required Function: production_cost =======================");
+disp("Uses matrix multiplication with transpose (A') because rows=products, columns=materials");
+code_func = { "function dataout = production_cost(datain)", "    dataout = datain;", "    A = datain(1:3,1:3);   % product rows x material columns", "    P = datain(1:3,4);     % production vector", "    C = datain(4,1:3);     % cost row vector", "    total = C * (A' * P);  % Correct: transpose to sum over products per material", "    dataout(4,4) = total;", "end" };
 for k = 1:length(code_func)
     disp(["   ", code_func{k}]);
 end
 
-input("\\nPress Enter to run the function dataout = production_cost(datain);
-disp("\nOutput matrix with total cost in (4,4):");
-disp(dataout);
-fprintf("Total production cost: %0.6f\n', dataout(4,4));
+input("\\nPress Enter to run the function...");
 
-input("\\nPress Enter for the three computation methods -- ================================================================
+dataout = production_cost(datain);
+disp("\\nOutput matrix with total cost in (4,4):");
+disp(dataout);
+fprintf("Total production cost: %0.6f\\n", dataout(4,4));
+
+input("\\nPress Enter for the three computation methods...");
+
+-- ================================================================
 -- Three methods (all now correct)
 -- ================================================================
-disp("\n=== Three Ways to Compute the Total Cost ====================");
-disp("Note: Matrix methods use A'' (transpose) for correct summation.');
+disp("\\n === Three Ways to Compute the Total Cost ====================");
+disp("Note: Matrix methods use A' (transpose) for correct summation.");
 
 disp("\\nMethod 1: Direct matrix multiplication C * (A' * P)");
-code1 = {
-"total1 = C * (A' * P);"
-};
+code1 = { "total1 = C * (A' * P);" };
 for k = 1:length(code1); disp(["   ", code1{k}]); end
 
 disp("\\nMethod 2: Intermediate material totals (A'*P first, then C*that)");
-code2 = {
-"material_totals = A' * P;"
-"total2 = C * material_totals;"
-};
+code2 = { "material_totals = A' * P;", "total2 = C * material_totals;" };
 for k = 1:length(code2); disp(["   ", code2{k}]); end
 
 disp("\\nMethod 3: Pure scalar double loops (explicit summations)");
-code3 = {
-"total3 = 0;"
-"for prod = 1:3"
-"    for mat = 1:3"
-"        total3 = total3 + A(prod,mat) * C(mat) * P(prod);"
-"    end"
-"end"
-};
+code3 = { "total3 = 0;", "for prod = 1:3", "    for mat = 1:3", "        total3 = total3 + A(prod,mat) * C(mat) * P(prod);", "    end", "end" };
 for k = 1:length(code3); disp(["   ", code3{k}]); end
 
-input("\\nPress Enter to execute all three methods A = datain(1:3,1:3);
+input("\\nPress Enter to execute all three methods...");
+
+A = datain(1:3,1:3);
 P = datain(1:3,4);
 C = datain(4,1:3);
 
 -- Method 1 (correct)
-total1 = C * (A" * P);
+total1 = C * (htranspose(A) * P);
 
 -- Method 2 (correct)
-material_totals = A' * P;
+material_totals = htranspose(A) * P;
 total2 = C * material_totals;
 
 -- Method 3 (already correct)
@@ -132,12 +118,14 @@ else
     disp("Error: Methods disagree.");
 end
 
-input("\\nPress Enter for operation counts -- ================================================================
+input("\\nPress Enter for operation counts...");
+
+-- ================================================================
 -- Operation counts
 -- ================================================================
-disp("\n=== Operation Counts (for n=3) ===============================");
+disp("\\n === Operation Counts (for n=3) ===============================");
 n = 3;
-mult = n^2 + n;                    -- n^2 for A"*P, n for C*result
+mult = n^2 + n;                    -- n^2 for A'*P, n for C*result
 add  = n*(n-1) + (n-1);            -- additions in each mult
 
 fprintf("Multiplications: %d\\n", mult);
@@ -149,7 +137,7 @@ disp("Additions      : n^2 - 1");
 disp("Transpose adds no significant operations.");
 disp("All methods have the same O(n^2) complexity.");
 
-disp("\\n=== Done! Correct total production cost is 49016.832000 ===");
+disp("\\n === Done! Correct total production cost is 49016.832000 ===");
 
 end  -- end of main function
 
@@ -162,7 +150,7 @@ function dataout = production_cost(datain)
     A = datain(1:3,1:3);
     P = datain(1:3,4);
     C = datain(4,1:3);
-    total = C * (A' * P);   % Corrected with transpose
+    total = C * (htranspose(A) * P);   % Corrected with transpose
     dataout(4,4) = total;
 end
 }

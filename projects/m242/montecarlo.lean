@@ -18,7 +18,7 @@ yc = sin(t);
 plot(xc,yc,"k")
 axis([0,1,0,1])
 axis square
-hold
+hold_on()
 hp=gcf;
 figure(hp);
 -- Generate n random points and their squared distances from (0, 0)
@@ -52,5 +52,7 @@ mcpi = 4*count/n;
 title(["A Monte Carlo Estimate of \\pi is  ", num2str(mcpi)])
 xlabel("x-axis")
 ylabel("y-axis")
-hold off
+hold_off()
+end
+
 }

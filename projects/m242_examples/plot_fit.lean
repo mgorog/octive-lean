@@ -36,53 +36,78 @@ hy=0.05*(My-my); -- increase height by 10%
 c=my-hy; d=My+hy; -- plot over vertical interval [c, d]
 
 
-if nargin <=5  -- single basic data plot
+if nargin <= 5  -- single basic data plot
 else
     subplot(2,1,1)
 end
 plot(x,yx,"g.",x,yx,"k-")
 axis([a,b,c,d]); -- changes from default axis bounds
-if nargin>2, xlabel(xstr),end
-if nargin>3, ylabel(ystr),end
-if nargin>4, title(ttlstr),end
+if nargin>2
+ xlabel(xstr)
+end
+if nargin>3
+ ylabel(ystr)
+end
+if nargin>4
+ title(ttlstr)
+end
 
 -- 1-var stats
-if nargout >=6, xbar = mean(x);end
-if nargout >=7, ybar = mean(yx);end
-if nargout >=8, stdx=std(x);end
-if nargout >=9, stdy=std(yx);end
+if nargout >= 6
+ xbar = mean(x);
+end
+if nargout >= 7
+ ybar = mean(yx);
+end
+if nargout >= 8
+ stdx=std(x);
+end
+if nargout >= 9
+ stdy=std(yx);
+end
 -- Correlation
-if nargout >=3,
-    X=[x' yx'];
+if nargout >= 3
+
+    X=[htranspose(x), htranspose(yx)];
     R=corrcoef(X);
     r=R(1,2);
 end
-if nargout >=4,rsq=r^2; end
+if nargout >= 4
+rsq=r^2;
+ end
 
 -- Polynomial Regression
 if nargin>5    -- linear regression with residuals and stats
     c=polyfit(x,yx,nfit);
-    reg_slope = c(end-1);reg_intcpt = c(end); -- linear part if nfit>1
+    reg_slope = c(numel(c)-1);
+reg_intcpt = c(numel(c)); -- linear part if nfit>1
     yhat=polyval(c,x);
     resid=yx-yhat; -- residuals
     xt=a:h/10:b;
     yt=polyval(c,xt);
     
-    hold
+hold_on()
     plot(xt,yt,"r")
     legend("input data plot","input points",["degree ",num2str(nfit)," fit"])
     
     subplot(2,1,2)  -- plot residuals (x,ex)
     
     plot(x,resid,"m.")
-    ve=axis;ce=ve(3);de=ve(4);
+    ve=axis;
+ce=ve(3);de=ve(4);
     axis([a,b,ce,de]); -- changes from default axis bounds
-    if nargin>2, xlabel(xstr),end
-    if nargin>3, ylabel(["Degree ",num2str(nfit)," residuals(e=y-yhat)"]),end
-    subplot(2,1,1), hold off
-    subplot(2,1,2), hold off
+    if nargin>2
+ xlabel(xstr)
 end
-hold off
+    if nargin>3
+ ylabel(["Degree ",num2str(nfit)," residuals(e=y-yhat)"])
+end
+    subplot(2,1,1)
+ hold_off()
+    subplot(2,1,2)
+ hold_off()
+end
+hold_off()
 
 end
 }

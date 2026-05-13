@@ -6,11 +6,11 @@ open OctiveLean.DSL
     cell/sym ops) don't survive the rewrite. -/
 
 octave! {
-(0==1)
-0==0
+(0 == 1)
+0 == 0
 a = 3.2; b = -2.1;
 !(a == b)
-xor((a!=3),(b<0))
+xor((a != 3),(b<0))
 
 pause
 "Rounding up or down"
@@ -61,12 +61,10 @@ a./b
 a.^2
 "Comment out the line giving theerror and rerun the scrippt"
 -- a*b
-a*b'
+a*htranspose(b)
 
-A=[1 2
-3 4]
-B=[3 0
-1 -1]
+A=[1, 2, 3, 4]
+B=[3, 0, 1, -1]
 
 A - B
 A.*B
@@ -74,7 +72,7 @@ A./B
 A.^B
 
 A*B
-linsolve(A, B
+linsolve(A, B)
 A/B
 
 max(A)

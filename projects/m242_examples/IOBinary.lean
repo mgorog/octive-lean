@@ -35,5 +35,5 @@ fidb2=fopen([pn,fn],"r");
 
 -- Converting to usual form
 
-word2=setstr(word2')
+word2=setstr(htranspose(word2))
 }

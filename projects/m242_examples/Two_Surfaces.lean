@@ -10,13 +10,18 @@ octave! {
 -- B. Lundberg, March 29, 2018
  [Xc,Yc,Zc] = cylinder(10); 
  surf(Xc, Yc, Zc)
- hold on
+ hold_on()
  surf(Zc, Xc, Yc)
  
-x=-10:1:10;y = x; [X, Y] = meshgrid(x,y);Z = 2*X - 3*Y; -- Making data for a plane surface
+x=-10:1:10;
+y = x;
+ [X, Y] = meshgrid(x,y);
+Z = 2*X - 3*Y; -- Making data for a plane surface
 
 surf(X,Y,Z)
-xlabel("x-axis"),ylabel("y-axis"),zlabel("z-axis")
+xlabel("x-axis")
+ylabel("y-axis")
+zlabel("z-axis")
 
 [Xs,Ys,Zs] = sphere(10);
 scale=5;

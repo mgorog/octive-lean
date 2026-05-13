@@ -8,10 +8,12 @@ open OctiveLean.DSL
 octave! {
 -- Fixed script2.m
 
-S = input(sprintf("Enter all the test scores on one line as \"[exam1, exam2,  n = length(S);
+S = input(sprintf("Enter all the test scores on one line as \"[exam1, exam2, ..., examn]\"\\n"));
+
+n = length(S);
 
 
-tstr = input(sprintf("Enter a title for the plot of linsolve(scores, n'), "s");
+tstr = input(sprintf("Enter a title for the plot of scores\\n"), "s");
 
 plot(1:n, S, "o-");
 title(tstr);

@@ -30,7 +30,8 @@ octave! {
 
 -- ─────────────────────────────────────────────────────────────
 --  1. HORNER'S METHOD
---  Evaluate p(x) = c(1)*x^(n-1) +  --  repeated exponentiation.  Costs n multiplications vs O(n^2).
+--  Evaluate p(x) = c(1)*x^(n-1) + ... + c(n) without
+--  repeated exponentiation.  Costs n multiplications vs O(n^2).
 -- ─────────────────────────────────────────────────────────────
 function y = horner(c, x)
   -- c = coefficient array, highest degree first
@@ -40,13 +41,13 @@ function y = horner(c, x)
   end
 end
 
-printf("\n=== 1. Horner's Method ===\n");
+printf("\n === 1. Horner's Method ===\n");
 -- p(x) = x^4 - 3x^3 + x^2 + 2x - 5  at x = 2
 --      = 16 - 24 + 4 + 4 - 5 = -5
 c = [1, -3, 1, 2, -5];
-printf("p(2) = %g  (exact: -5linsolve(), n", horner(c, 2));
-printf("p(0) = %g  (exact: -5linsolve(), n", horner(c, 0));
-printf("p(3) = %g  (exact: 28linsolve(), n", horner(c, 3));
+printf("p(2) = %g  (exact: -5linsolve(), n)", horner(c, 2));
+printf("p(0) = %g  (exact: -5linsolve(), n)", horner(c, 0));
+printf("p(3) = %g  (exact: 28linsolve(), n)", horner(c, 3));
 
 
 -- ─────────────────────────────────────────────────────────────
@@ -67,10 +68,10 @@ function x = babylonian_sqrt(a, tol)
   end
 end
 
-printf("\n=== 2. Fixed-Point / Babylonian sqrt ===\n");
+printf("\n === 2. Fixed-Point / Babylonian sqrt ===\n");
 for a = [2, 7, 144, 0.01]
   s = babylonian_sqrt(a, 1e-12);
-  printf("sqrt(%g) = %0.12f  (error %0.2elinsolve(), n", a, s, abs(s - sqrt(a)));
+  printf("sqrt(%g) = %0.12f  (error %0.2elinsolve(), n)", a, s, abs(s - sqrt(a)));
 end
 
 
@@ -98,7 +99,7 @@ function root = bisect(a, b, f, tol)
   root = (a + b) / 2;
 end
 
-printf("\n=== 3. Bisection Method ===\n");
+printf("\n === 3. Bisection Method ===\n");
 -- f(x) = x^3 - x - 2,  root near x = 1.5214
 f1 = @(x) x^3 - x - 2;
 r  = bisect(1.0, 2.0, f1, 1e-12);
@@ -127,12 +128,12 @@ function x = newton(x0, f, df, tol)
   end
 end
 
-printf("\n=== 4. Newton's Method ===\n");
+printf("\n === 4. Newton's Method ===\n");
 -- Cube root of 27: f(x) = x^3 - 27
 f3  = @(x) x^3 - 27;
 df3 = @(x) 3 * x^2;
 r3  = newton(2.0, f3, df3, 1e-14);
-printf("cbrt(27) = %0.12f  (exact: 3linsolve(), n", r3);
+printf("cbrt(27) = %0.12f  (exact: 3linsolve(), n)", r3);
 
 -- Reciprocal square root (useful in graphics): 1/sqrt(a)
 -- f(x) = 1/x^2 - a,  f'(x) = -2/x^3
@@ -140,7 +141,7 @@ a_val = 2.0;
 f4  = @(x) 1 / (x*x) - a_val;
 df4 = @(x) -2 / (x*x*x);
 r4  = newton(0.5, f4, df4, 1e-14);
-printf("1/sqrt(2) = %0.12f  (exact: %0.12flinsolve(), n", r4, 1/sqrt(2));
+printf("1/sqrt(2) = %0.12f  (exact: %0.12flinsolve(), n)", r4, 1/sqrt(2));
 
 
 -- ─────────────────────────────────────────────────────────────
@@ -167,11 +168,11 @@ function x = secant(x0, x1, f, tol)
   x = x1;
 end
 
-printf("\n=== 5. Secant Method ===\n");
+printf("\n === 5. Secant Method ===\n");
 -- e^x = 3  =>  x = ln(3)
 f5 = @(x) exp(x) - 3;
 r5 = secant(1.0, 1.5, f5, 1e-12);
-printf("e^x = 3  =>  x = %0.12f  (ln 3 = %0.12flinsolve(), n", r5, log(3));
+printf("e^x = 3  =>  x = %0.12f  (ln 3 = %0.12flinsolve(), n)", r5, log(3));
 
 
 -- ─────────────────────────────────────────────────────────────
@@ -180,7 +181,7 @@ printf("e^x = 3  =>  x = %0.12f  (ln 3 = %0.12flinsolve(), n", r5, log(3));
 --  Central difference:  (f(x+h) - f(x-h)) / (2h)     O(h^2)
 --  Second derivative:   (f(x+h) - 2f(x) + f(x-h))/h^2  O(h^2)
 -- ─────────────────────────────────────────────────────────────
-printf("\n=== 6. Numerical Differentiation of sin(x) at x=1 ===\n");
+printf("\n === 6. Numerical Differentiation of sin(x) at x=1 ===\n");
 x0     = 1.0;
 exact1 = cos(1);          -- first derivative
 exact2 = -sin(1);         -- second derivative
@@ -198,7 +199,8 @@ end
 
 -- ─────────────────────────────────────────────────────────────
 --  7. TRAPEZOIDAL RULE
---  Integral of f from a to b ≈ h*(f(a)/2 + f(a+h) +  --  Error O(h^2) per step, O(h^2) overall.
+--  Integral of f from a to b ≈ h*(f(a)/2 + f(a+h) + ... + f(b)/2)
+--  Error O(h^2) per step, O(h^2) overall.
 -- ─────────────────────────────────────────────────────────────
 function I = trapz_rule(f, a, b, n)
   h = (b - a) / n;
@@ -211,7 +213,7 @@ function I = trapz_rule(f, a, b, n)
   I = I * h / 2;
 end
 
-printf("\n=== 7. Trapezoidal Rule ===\n");
+printf("\n === 7. Trapezoidal Rule ===\n");
 -- Integrate exp(-x^2) from 0 to 1  (exact: erf(1)*sqrt(pi)/2 ≈ 0.7468241328)
 exact_gauss = 0.7468241328124271;
 f6 = @(x) exp(-x*x);
@@ -242,7 +244,7 @@ function I = simpsons(f, a, b, n)
   I = I * h / 3;
 end
 
-printf("\n=== 8. Simpson's Rule ===\n");
+printf("\n === 8. Simpson's Rule ===\n");
 for n = [10, 100, 1000]
   I  = simpsons(f6, 0, 1, n);
   printf("n=%-5d  I=%0.10f  err=%0.2e\n", n, I, abs(I - exact_gauss));
@@ -255,14 +257,14 @@ end
 --  the leading error term: I* ≈ (4*I(h/2) - I(h)) / 3
 --  Boosts trapezoidal from O(h^2) to O(h^4).
 -- ─────────────────────────────────────────────────────────────
-printf("\n=== 9. Richardson Extrapolation ===\n");
+printf("\n === 9. Richardson Extrapolation ===\n");
 n1  = 10;
 I1  = trapz_rule(f6, 0, 1, n1);       -- step h
 I2  = trapz_rule(f6, 0, 1, 2*n1);     -- step h/2
 Ir  = (4*I2 - I1) / 3;                -- Richardson combo
 printf("Trapz n=10:   err=%0.2e\n", abs(I1 - exact_gauss));
 printf("Trapz n=20:   err=%0.2e\n", abs(I2 - exact_gauss));
-printf("Richardson:   err=%0.2e  (matches Simpson'slinsolve(), n", abs(Ir - exact_gauss));
+printf("Richardson:   err=%0.2e  (matches Simpson'slinsolve(), n)", abs(Ir - exact_gauss));
 
 
 -- ─────────────────────────────────────────────────────────────
@@ -280,7 +282,7 @@ function y = euler_ode(f, t0, t1, y0, h)
   end
 end
 
-printf("\n=== 10. Euler Method  (dy/dt = -y, y(0)=1) ===\n");
+printf("\n === 10. Euler Method  (dy/dt = -y, y(0)=1) ===\n");
 -- Exact solution: y(t) = exp(-t),  y(1) = exp(-1)
 ode_f  = @(t, y) -y;
 exact_y1 = exp(-1);
@@ -309,7 +311,7 @@ function y = rk4(f, t0, t1, y0, h)
   end
 end
 
-printf("\n=== 11. Runge-Kutta 4  (dy/dt = -y, y(0)=1) ===\n");
+printf("\n === 11. Runge-Kutta 4  (dy/dt = -y, y(0)=1) ===\n");
 for h = [0.1, 0.01, 0.001]
   y1 = rk4(ode_f, 0, 1, 1.0, h);
   printf("h=%0.3f  y(1)=%0.10f  err=%0.2e\n", h, y1, abs(y1 - exact_y1));
@@ -319,14 +321,14 @@ end
 -- Rewrite as system: dx/dt = v,  dv/dt = -x
 -- Pack as single value x encoding [pos, vel] as a 2-element vector
 -- (Here we just track position: exact x(t) = cos(t))
-printf("  Harmonic oscillator x''=-x, x(0)=1, x'(0)=0\n");
+printf("  Harmonic oscillator x'"=-x, x(0)=1, x"(0)=0\n");
 ho_f = @(t, x) x - 2*x;    -- simplified: just track cos via dy/dt = -y
 -- Actually let's do it cleanly: solve v' = -x, x' = v with state = x (skip v)
 -- Instead demonstrate with a stiff-ish equation: y' = -50(y - cos(t)) - sin(t)
 -- exact: y(t) = cos(t)
 stiff_f = @(t, y) -50 * (y - cos(t)) - sin(t);
 y_stiff = rk4(stiff_f, 0, 1, 1.0, 0.05);
-printf("  Stiff eq y'=-50(y-cos t)-sin t, y(1): %0.8f (exact cos(1)=%0.8flinsolve(), n",
+printf("  Stiff eq y'=-50(y-cos t)-sin t, y(1): %0.8f (exact cos(1)=%0.8flinsolve(), n)",
        y_stiff, cos(1));
 
 
@@ -378,7 +380,7 @@ function x = gauss3(A, b)
   end
 end
 
-printf("\n=== 12. Gaussian Elimination (3×3) ===\n");
+printf("\n === 12. Gaussian Elimination (3×3) ===\n");
 --  2x + y - z = 8
 -- -3x - y + 2z = -11
 -- -2x + y + 2z = -3
@@ -386,9 +388,9 @@ printf("\n=== 12. Gaussian Elimination (3×3) ===\n");
 A = [2, 1, -1; -3, -1, 2; -2, 1, 2];
 b = [8; -11; -3];
 sol = gauss3(A, b);
-printf("x = %0.4f (exact 2linsolve(), n", sol(1));
-printf("y = %0.4f (exact 3linsolve(), n", sol(2));
-printf("z = %0.4f (exact -1linsolve(), n", sol(3));
+printf("x = %0.4f (exact 2linsolve(), n)", sol(1));
+printf("y = %0.4f (exact 3linsolve(), n)", sol(2));
+printf("z = %0.4f (exact -1linsolve(), n)", sol(3));
 
 -- Verify: compute residual Ax - b manually
 r1 = 2*sol(1) + 1*sol(2) - 1*sol(3) - 8;
@@ -419,7 +421,7 @@ function lam = power_iter(A, n_iter)
   end
 end
 
-printf("\n=== 13. Power Iteration (dominant eigenvalue) ===\n");
+printf("\n === 13. Power Iteration (dominant eigenvalue) ===\n");
 -- Symmetric matrix with known eigenvalues 6, 2, 1 (dominant = 6)
 M = [4, 1, 1; 1, 3, 0; 1, 0, 2];
 lam = power_iter(M, 30);
@@ -447,7 +449,7 @@ function y = lagrange(xs, ys, x)
   end
 end
 
-printf("\n=== 14. Lagrange Interpolation ===\n");
+printf("\n === 14. Lagrange Interpolation ===\n");
 -- Sample sin(x) at 5 points and interpolate at intermediate x
 xs = [0, pi/4, pi/2, 3*pi/4, pi];
 ys = [0, sin(pi/4), 1, sin(3*pi/4), 0];
@@ -459,5 +461,5 @@ for x_test = [0.3, 0.8, 1.2, 1.8, 2.5]
          x_test, exact_v, interp, abs(interp - exact_v));
 end
 
-printf("\n=== Tutorial complete! ===\n");
+printf("\n === Tutorial complete! ===\n");
 }

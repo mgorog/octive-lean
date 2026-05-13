@@ -10,7 +10,7 @@ octave! {
 -- No graphics toolkit changes; using default (likely gnuplot in Octave, which may be slower for 3D plots).
 -- There are no explicit loops or iterations in the user code that could run forever—all operations are vectorized and finite.
 -- The meshgrid creates a 100x100 grid (10,000 points), with element-wise computations; no iteration cutoff needed as it completes quickly on most systems.
--- If plotting is slow in Octave, consider installing FLTK or Qt toolkit manually, or reduce '100' in linspace to a smaller number (e.g., 30) for testing.
+-- If plotting is slow in Octave, consider installing FLTK or Qt toolkit manually, or reduce "100" in linspace to a smaller number (e.g., 30) for testing.
 
 close all;
 clear all;
@@ -78,7 +78,7 @@ figure
 sales = [5, 10, 12, 17];
 hp = plot(sales);
 set(hp, "LineWidth", 2.0)
-hold on
+hold_on()
 hpp = plot(sales, "rp");
 set(hpp, "MarkerSize", 14)
 
@@ -91,8 +91,8 @@ set(ax1, "XTick", 1:4)
 set(ax1, "XTickLabel", {"Jan"; "Feb"; "Mar"; "Apr"})
 ytk = get(ax1, "YTick");
 ytkl = get(ax1, "YTickLabel");
-set(ax1, "YTick", ytk(1:end-1))
-set(ax1, "YTickLabel", ytkl(1:end-1, :))
+set(ax1, "YTick", ytk(1:numel(ytk)-1))
+set(ax1, "YTickLabel", ytkl(1:numel(ytkl)-1, :))
 ht = title("Monthly Sales 2010");
 tv = get(ht, "Position");
 set(ht, "Position", tv + [0, -0.4, 0], "FontWeight", "bold", "FontSize", 18, "Color", "red")

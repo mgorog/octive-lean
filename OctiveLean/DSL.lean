@@ -76,6 +76,13 @@ syntax octRow ";" octMatBody                              : octMatBody
 syntax:max "[" octMatBody "]"                             : octExpr
 syntax:max "[" "]"                                        : octExpr   -- empty matrix
 
+-- Cell array literal:  `{a, b; c, d}` / `{}`
+syntax:max "{" octMatBody "}"                             : octExpr
+syntax:max "{" "}"                                        : octExpr   -- empty cell
+
+-- Cell content indexing `M{k}` is not yet supported by the DSL — the
+-- macro-pattern parser treats `{` specially in postfix-on-octExpr position.
+
 -- Function handles
 syntax:max "@" ident                                      : octExpr
 syntax:max "@(" ident,* ")" octExpr                       : octExpr
@@ -185,14 +192,24 @@ syntax "try" octStmt*
        ("catch" ident octStmt*)?
        "end"                                              : octStmt
 
--- Control flow
+-- Control flow (with optional trailing `;`)
 syntax "return"                                           : octStmt
 syntax "break"                                            : octStmt
 syntax "continue"                                         : octStmt
+syntax "return" ";"                                       : octStmt
+syntax "break" ";"                                        : octStmt
+syntax "continue" ";"                                     : octStmt
 
--- Scope
+-- Scope.  All forms (with/without idents, with/without `;`) collapse to
+-- one of two AST constructors.
 syntax "global" ident+                                    : octStmt
 syntax "clear"  ident+                                    : octStmt
+syntax "global" ident+ ";"                                : octStmt
+syntax "clear"  ident+ ";"                                : octStmt
+syntax "global"                                           : octStmt
+syntax "clear"                                            : octStmt
+syntax "global" ";"                                       : octStmt
+syntax "clear"  ";"                                       : octStmt
 
 -- Function definition (`end` also accepted as terminator)
 syntax "function" ident " = " ident "(" ident,* ")"
@@ -282,6 +299,12 @@ private partial def convExpr (e : Syntax) : MacroM (TSyntax `term) := do
   | `(octExpr| [ $body:octMatBody ]) => do
       let rowTerms ← collectRows body
       `(Expr.matrix #[$rowTerms,*])
+  -- Cell array literal: empty
+  | `(octExpr| { })  => `(Expr.cellArr #[])
+  -- Cell array literal: with body
+  | `(octExpr| { $body:octMatBody }) => do
+      let rowTerms ← collectRows body
+      `(Expr.cellArr #[$rowTerms,*])
   | _ => Macro.throwErrorAt e "unsupported expression syntax"
 where
   convRow (row : Syntax) : MacroM (TSyntax `term) := do
@@ -390,17 +413,25 @@ private partial def convStmt (s : Syntax) : MacroM (TSyntax `term) := do
             `(some ($(Lean.quote ev.getId.toString), #[$cbt,*]))
         | _, _ => `((none : Option (String × Array Stmt)))
       `(Stmt.tryS #[$tryT,*] $catchT)
-  -- Control flow
-  | `(octStmt| return)     => `(Stmt.returnS)
-  | `(octStmt| break)      => `(Stmt.breakS)
-  | `(octStmt| continue)   => `(Stmt.continueS)
-  -- Scope
-  | `(octStmt| global $ids*) => do
+  -- Control flow (the trailing `;` form is just for parse-side; both lower
+  -- to the same statement)
+  | `(octStmt| return)
+  | `(octStmt| return ;)   => `(Stmt.returnS)
+  | `(octStmt| break)
+  | `(octStmt| break ;)    => `(Stmt.breakS)
+  | `(octStmt| continue)
+  | `(octStmt| continue ;) => `(Stmt.continueS)
+  -- Scope (`;`-terminated and no-arg forms collapse to one constructor)
+  | `(octStmt| global $ids*)
+  | `(octStmt| global $ids* ;) => do
       let names := ids.map (fun i => quoteStr i.getId.toString)
       `(Stmt.globalS #[$names,*])
-  | `(octStmt| clear $ids*) => do
+  | `(octStmt| clear $ids*)
+  | `(octStmt| clear $ids* ;) => do
       let names := ids.map (fun i => quoteStr i.getId.toString)
       `(Stmt.clearS #[$names,*])
+  | `(octStmt| global) | `(octStmt| global ;) => `(Stmt.globalS #[])
+  | `(octStmt| clear)  | `(octStmt| clear ;)  => `(Stmt.clearS #[])
   -- Function defs (with `endfunction` or bare `end`)
   | `(octStmt| function $ret:ident = $name:ident ( $params:ident,* )
                $body:octStmt* endfunction)

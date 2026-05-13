@@ -22,11 +22,11 @@ first = word(1);
 
 -- Check if first letter is a vowel
 if first == "a" || first == "e" || first == "i" || first == "o" || first == "u"
-    -- Append 'way' if vowel
-    pig_latin = [word 'way'];
+    -- Append "way" if vowel
+    pig_latin = [word, "way"];
 else
     -- Find the position of the first vowel
-    vowels = ["a" 'e' 'i' 'o' 'u'];
+    vowels = ["a", "e", "i", "o", "u"];
     first_vowel_pos = 0;
     for i = 2:length(word)
         if any(word(i) == vowels)
@@ -37,12 +37,12 @@ else
 
     -- If no vowel found (rare, but handle it), treat as consonant cluster
     if first_vowel_pos == 0
-        pig_latin = [word 'ay'];
+        pig_latin = [word, "ay"];
     else
-        -- Move consonants to end and append 'ay'
+        -- Move consonants to end and append "ay"
         consonants = word(1:first_vowel_pos-1);
-        rest = word(first_vowel_pos:end);
-        pig_latin = [rest, consonants 'ay'];
+        rest = word(first_vowel_pos:numel(word));
+        pig_latin = [rest, consonants, "ay"];
     end
 end
 
@@ -62,19 +62,22 @@ tf = input("Enter final time (in seconds): ");
 disp("Time (t) array sample:");
 disp(t(1:min(5, length(t))));
 if length(t) > 5
-    disp(" disp(t(end-4:end));
+    disp("...");
+    disp(t(numel(t)-4:numel(t)));
 end
 
 disp("Velocity (v) array sample:");
 disp(v(1:min(5, length(v))));
 if length(v) > 5
-    disp(" disp(v(end-4:end));
+    disp("...");
+    disp(v(numel(v)-4:numel(v)));
 end
 
 disp("Position (s) array sample:");
 disp(s(1:min(5, length(s))));
 if length(s) > 5
-    disp(" disp(s(end-4:end));
+    disp("...");
+    disp(s(numel(s)-4:numel(s)));
 end
 
 -- Function definition (placed at the end as per MATLAB/Octave convention for scripts with functions)
@@ -106,7 +109,7 @@ function [t, v, s] = fallingObjectPlot(tf)
 
     -- Position plot (top subplot, green)
     subplot(2,1,1);
-    plot(t, s, "g', "LineWidth", 1.5);
+    plot(t, s, "g", "LineWidth", 1.5);
     xlabel("Time (seconds)");
     ylabel("Position (meters)");
     grid on;

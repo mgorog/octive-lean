@@ -14,17 +14,17 @@ function [x,y]=randwalk(s)
 x=zeros(1,s+1); -- grab enought static memory
 y=x;
 plot(x(1),y(1),"bp")
-hold on
+hold_on()
 rand("state",sum(100*clock)) 
-for i=1:s;
+for i=1:s
     r=rand;
-    if r<0.25;
+    if r<0.25
         x(i+1)=x(i)+1; 
         y(i+1)=y(i);
-    elseif r<0.5;
+    elseif r<0.5
         x(i+1)=x(i)-1;
         y(i+1)=y(i);
-    elseif r<0.75;
+    elseif r<0.75
         x(i+1)=x(i);
         y(i+1)=y(i)+1;
     else
@@ -34,4 +34,6 @@ for i=1:s;
 end
 
 comet(x,y)
+end
+
 }

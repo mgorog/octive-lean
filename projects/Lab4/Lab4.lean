@@ -13,6 +13,6 @@ symbols = struct(
     "vel", {},
     "mass", {},
     "children", {},
-    "glue_strength", {},
+    "glue_strength", {}
 );
 }

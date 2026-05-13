@@ -25,7 +25,8 @@ function [Tmax,RVmax,Timp,RVimp,T,Y,Ie]=BallFlight3(t0,RV0,Acc,phi0_deg,Cd_ball,
 -- Author: B.Lundberg  Date: v1:01-27-2025 Updates: v2:4-3-25, v3:4-14-25
 -- Ref: https://file.scirp.org/pdf/WJM_2018062515520887.pdf
 
--- algorithm parameter defaults if nargin >7 && prnt_flag >0  
+-- algorithm parameter defaults 
+if nargin >7 && prnt_flag >0  
     format SHORTG
     format compact
 end
@@ -61,7 +62,7 @@ F_bflgt=@(t,y) [y(3:4);[Accx;-g], - K_doverm*y(3:4)*norm(y(3:4))];
 TendEst=(vy0+sqrt(vy0^2+2*g*h))/g + t0;
 Options1=odeset("RelTol",1e-8,"AbsTol",1e-5,"Events",@peak_impact_Events); 
 
-[T,Y,Te,Ye,Ie] = ode45(F_bflgt,[t0:0.1:TendEst],[x0, y0, vx0, vy0]',Options1);    
+[T,Y,Te,Ye,Ie] = ode45(F_bflgt,[t0:0.1:TendEst],htranspose([x0, y0, vx0, vy0]),Options1);    
 
 -- Load Output Vars [Tmax,RVmax,Timp,RVimp]
 Tmax=Te(1); RVmax=Ye(1,:);
@@ -79,11 +80,13 @@ disp([Timp,RVimp])
 plot(Y(:,1),Y(:,2))
 v=axis;v=v+[-2,2,0,0];
 axis equal
-hold, plot([v(1),v(2)],[0,0],"g")
+hold
+ plot([v(1),v(2)],[0,0],"g")
 axis(v)
-xlabel("x (meters)"), ylabel("y (meters)")
+xlabel("x (meters)")
+ ylabel("y (meters)")
 title("Golf Ball Flight")
-hold off
+hold_off()
 --subplot(2,1,2)
 --comet(Y(:,1),Y(:,2))
 end
@@ -99,7 +102,7 @@ end
    direction(1) = -1;   -- Negative direction only
    -- Ground Impact
    value(2) = y(2);     -- Detect y = 0 (impact with ground)
-   isterminal(2) = 1;   -- Stop the integration if y(2)==0
+   isterminal(2) = 1;   -- Stop the integration if y(2) == 0
    direction(2) = -1;   -- Negative direction only
   end
 }

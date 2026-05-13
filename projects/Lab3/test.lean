@@ -19,11 +19,12 @@ disp("  We will explore recursion, subplots, semilogy plots,");
 disp("  and the cosine Taylor approximation step by step.");
 disp("=====================================================");
 disp(" ");
-input("Press Enter to begin the tutorial clc;
+input("Press Enter to begin the tutorial...", "s");
+clc;
 
 -- ====================== SECTION 1 ======================
 disp("=== SECTION 1: Recursive Factorial ===");
-disp(" ');
+disp(" ");
 disp("A recursive function calls itself until it reaches a base case.");
 disp("Factorial definition:");
 disp("   0! = 1");
@@ -50,13 +51,14 @@ end
 
 result = fac(n);
 disp(" ");
-disp(["Result: fac(" num2str(n) ') = " num2str(result)]);
-disp(" ');
-input("Press Enter to continue to the next section clc;
+disp(["Result: fac(", num2str(n), ") = ", num2str(result)]);
+disp(" ");
+input("Press Enter to continue to the next section...", "s");
+clc;
 
 -- ====================== SECTION 2 ======================
 disp("=== SECTION 2: Recursive Power (Exponentiation by Squaring) ===");
-disp(" ');
+disp(" ");
 disp("This is an efficient recursive way to compute A^K in O(log K) steps.");
 disp("Base case: A^0 = 1");
 disp("Even K: (A^(K/2))^2");
@@ -84,13 +86,14 @@ end
 
 result = recursive_power(A, K);
 disp(" ");
-disp(["Result: ", num2str(A) '^' num2str(K) ' = " num2str(result)]);
-disp(" ');
-input("Press Enter to continue clc;
+disp(["Result: ", num2str(A), "^", num2str(K), " = ", num2str(result)]);
+disp(" ");
+input("Press Enter to continue...", "s");
+clc;
 
 -- ====================== SECTION 3 ======================
 disp("=== SECTION 3: Subplots ===");
-disp(" ');
+disp(" ");
 disp("subplot(rows, cols, index) divides a figure into a grid.");
 disp("Example: 2 rows × 3 columns → 6 panels.");
 disp("We will plot sine and cosine in positions 1 and 4.");
@@ -118,11 +121,12 @@ grid on;
 disp("Figure 1 has been created.");
 disp("Check the plot window!");
 disp(" ");
-input("Press Enter to continue to semilogy clc;
+input("Press Enter to continue to semilogy...", "s");
+clc;
 
 -- ====================== SECTION 4 ======================
 disp("=== SECTION 4: Semilogy Plot ===");
-disp(" ');
+disp(" ");
 disp("semilogy(x, y) uses a logarithmic y-scale.");
 disp("Perfect for showing errors that span many orders of magnitude.");
 disp(" ");
@@ -135,16 +139,17 @@ semilogy(x_sem, y_sem, "g-", "LineWidth", 1.5);
 title("Semilogy Plot of exp(-x)");
 xlabel("x");
 ylabel("log(y)");
-grid, on;
+grid on;
 
 disp("Figure 2 has been created.");
 disp("Notice how the exponential decay becomes a straight line on log scale.");
 disp(" ");
-input("Press Enter to continue to the application problem clc;
+input("Press Enter to continue to the application problem...", "s");
+clc;
 
 -- ====================== SECTION 5 ======================
 disp("=== SECTION 5: Application - Taylor Approximation of cos(2x) ===");
-disp(" ');
+disp(" ");
 disp("We compare exact cos(2x) with its Taylor series approximation:");
 disp("cos(2x) ≈ 1 - (2x)^2/2! + (2x)^4/4! - (2x)^6/6!");
 disp("Over x = -2π to 2π (≈ ±2 periods).");
@@ -174,9 +179,9 @@ figure(3);
 
 -- Subplot 1: Comparison
 subplot(2, 1, 1);
-plot(x_app, y_exact, "b-", "LineWidth", 2); hold on;
+plot(x_app, y_exact, "b-", "LineWidth", 2); hold_on();
 plot(x_app, y_approx, "r--", "LineWidth", 2);
-title(["Exact vs Taylor approx (order " num2str(order) ')']);
+title(["Exact vs Taylor approx (order ", num2str(order), ")"]);
 xlabel("x");
 ylabel("y");
 legend("Exact cos(2x)", "Approximation");
@@ -194,18 +199,19 @@ disp("Figure 3 has been created.");
 disp("Observe how the error grows away from x = 0.");
 disp("Higher order = better approximation near zero.");
 disp(" ");
-input("Press Enter to finish the tutorial clc;
+input("Press Enter to finish the tutorial...", "s");
+clc;
 
 disp("=====================================================");
 disp("Tutorial complete!");
-disp("You now have three figure windows open.');
+disp("You now have three figure windows open.");
 disp("You can close them manually or type close all.");
 disp(" ");
 disp("Would you like to run the tutorial again?");
 again = input("Type \"yes\" or press Enter to quit: ", "s");
-if, strcmpi(again, "yes")
- run("test_tutorial.m"); -- Change filename if you save it differently
+if strcmpi(again, "yes")
+    run("test_tutorial.m");  -- Change filename if you save it differently
 else
- disp("Thank you for learning with this interactive script!");
+    disp("Thank you for learning with this interactive script!");
 end
 }

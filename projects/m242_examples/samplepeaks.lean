@@ -14,7 +14,7 @@ function Points = samplepeaks(N)
 -- (This requires symbolic toolbox)
 -- Sample usage: >>CriticalPoints = samplepeaks(3);
 
-whitebg 'w'
+whitebg "w"
 
 -- Generate Data for Peaks Plot and Make full plot
 [X,Y,Z]=peaks;
@@ -72,4 +72,6 @@ end
 -- f =  sym("3*(1-x)^2*exp(-(x^2)-(y+1)^2)- 10*(x/5 - x^3 - y^5)*exp(-x^2-y^2)- 1/3*exp(-(x+1)^2 - y^2)")
 -- gradf=jacobian(f,[x,y])
 -- Jf=jacobian(gradf,[x,y])
+end
+
 }

@@ -6,7 +6,7 @@ open OctiveLean.DSL
     cell/sym ops) don't survive the rewrite. -/
 
 octave! {
-function x = newtons(f,df,guess,tol,maxstep,show)
+function x = newtons(f,df,guess,tol,maxstep,show_)
 -- Carries out up to maxstep iterations of newtons method
 -- for approximation of a root of f(x) = 0.
 -- The problem function (f) and its derivative (df)
@@ -28,13 +28,13 @@ step = tol+1;    -- fake step size to get into loop
 x = guess;       -- initialize iteration variable
 y  = feval(f,x); -- compute f at current iterate
 
-while abs(step)>=tol && abs(y)>=tol && k <=maxstep
+while abs(step) >= tol && abs(y) >= tol && k <= maxstep
     
     -- compute df at current iterate  
     yp = feval(df,x); 
     
     -- compute and take new step
-    step = -linsolve(yp, y;
+    step = -linsolve(yp, y);
     x = x + step;
     
     -- compute f at new iterate
@@ -45,7 +45,7 @@ while abs(step)>=tol && abs(y)>=tol && k <=maxstep
     
     -- display iterates only if 6th input argument is present
     if nargin>5
-        if show<2
+        if show_<2
             fprintf("x_%2i = %g     f(x_%2i) = %g\\n", k,x,k,y)
         else
             fprintf("x_%2i = %18.17g     f(x_%2i) = %18.17g\\n", k,x,k,y)
@@ -58,4 +58,6 @@ end
 if k > maxstep
     disp(["Stopping tolerance not satified in ",num2str(maxstep)," iteratons"])
 end
+end
+
 }

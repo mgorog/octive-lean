@@ -18,26 +18,33 @@ function [a,b,r,rsq,residuals,xbar,ybar,stdx,stdy] = plot_fit(x,y,xstr,ystr,ttls
 --          plot residuals 
 if isa(y, "function_handle")  -- checks if y is a function
     yx=y(x);
+
 else
     yx=y;
 end
 
-if nargin <=5  -- single basic data plot
+if nargin <= 5  -- single basic data plot
     plot(x,yx,"b.",x,yx,"g")
-    if nargin>2, xlabel(xstr),end
-    if nargin>3, ylabel(ystr),end
-    if nargin>4, title(ttlstr),end
+    if nargin>2
+ xlabel(xstr)
+end
+    if nargin>3
+ ylabel(ystr)
+end
+    if nargin>4
+ title(ttlstr)
+end
 end
 if nargin>5    -- linear regression with residuals and stats
     
-   if nfit==1
+   if nfit == 1
 -- 1-var stats
 xbar = mean(x);
 ybar = mean(yx);
 stdx=std(x);
 stdy=std(yx);
 -- Correlation
-X=[x' yx'];
+X=[htranspose(x), htranspose(yx)];
 R=corrcoeff(X);
 r=R(1,2);
 rsq=r^2;
@@ -58,16 +65,20 @@ v =
 
     -2     4     1     5
 
-vn=[-3, 5, -1, 7];axis(vn)
+vn=[-3, 5, -1, 7];
+axis(vn)
 axis equal
 axi
 axis(v)
 axis(vn)
 axis square
 title("Scatter Plot with yhat= a + bx")
-t=-3:5;yt=2.7153 + 0.3869*t;
+t=-3:5;
+yt=2.7153 + 0.3869*t;
 plot(t,yt)
-xbar=mean(x); ybar=mean(y); plot(xbar,ybar,"p")
+xbar=mean(x);
+ ybar=mean(y);
+ plot(xbar,ybar,"p")
 yhat=2.7153 + 0.3869*x;
 es=y-yhat
 
@@ -82,23 +93,34 @@ es =
 
     0.8978    1.8978   -1.8760    0.0585   -1.7153    0.7371
 
-subplot(2,1,2), plot(x,es,"d"),xlabel("x"),ylabel("residuals (e = y - yhat")
+subplot(2,1,2)
+ plot(x,es,"d")
+xlabel("x")
+ylabel("residuals (e = y - yhat")
 ve=vn
 
 ve =
 
     -3     5    -1     7
 
-ve(3)=-2;ve(4)=2;
+ve(3)=-2;
+ve(4)=2;
 axis(ve)
-ve(3)=-3;ve(4)=3;
+ve(3)=-3;
+ve(4)=3;
 axis square
 axis(ve)
-subplot(2,1,2), plot(x,es,"d"),xlabel("x"),ylabel("residuals (e = y-yhat)"),axis square
+subplot(2,1,2)
+ plot(x,es,"d")
+xlabel("x")
+ylabel("residuals (e = y-yhat)")
+axis square
 axis(ve)
 help stdev
 
 end
 
 x=[1, 1, 3, -2, 0, 4];y=[4, 5, 2, 2, 1, 5];
+end
+
 }

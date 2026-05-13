@@ -21,4 +21,6 @@ throw_pts=sigma*randn([N,3]);
 w=W/2;
 ins=find(throw_pts(:,1) >-w & throw_pts(:,2)> -w & throw_pts(:,3)> -w  & throw_pts(:,1) < w & throw_pts(:,2)<  w & throw_pts(:,3)< w);
 percent_in=100*length(ins)/N;
+end
+
 }

@@ -28,10 +28,10 @@ if nargin == 4
 elseif nargin == 2
     m = slope(x1(:,1),x1(:,2),y1(:,1),y1(:,2));
 elseif nargin == 0
-    global X1 Y1 X2 Y2
+    global X1 Y1 X2 Y2;
     sizeX1 = size(X1);
     if isempty(X1)|isempty(X2)
-        global P Q
+        global P Q;
         m = slope(P,Q);
     elseif sizeX1(2) == 2
         m = slope(X1, Y1);
@@ -39,4 +39,6 @@ elseif nargin == 0
         m = slope(X1, Y1, X2, Y2);
     end
 end
+end
+
 }

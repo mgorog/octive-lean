@@ -28,18 +28,24 @@ end
 
 t=linspace(t1-2,t2+2,101);
 rt = r(t);
-hold off
+hold_off()
 plot3(rt(1,:),rt(2,:),rt(3,:))
-hold
-xlabel("x"),ylabel("y"),zlabel("z")
+hold_on()
+xlabel("x")
+ylabel("y")
+zlabel("z")
 title(ttl);
 -- TNB Frames at t1 and t2
-T0=[1,0,0]';N0=[0,1/sqrt(5),2/sqrt(5)]';B0=[0,-2/sqrt(5),1/sqrt(5)]';
+T0=htranspose([1,0,0]);
+N0=htranspose([0,1/sqrt(5),2/sqrt(5)]);
+B0=htranspose([0,-2/sqrt(5),1/sqrt(5)]);
 quiver3(0,0,0,1,0,0,"g") -- T
 quiver3(0,0,0,0,1/sqrt(5),2/sqrt(5),"r--") -- N
 quiver3(0,0,0,0,-2/sqrt(5),1/sqrt(5),"b-.") -- B
 
-T1=[1,1,2]'/sqrt(6);N1=[-5,1,2]'/sqrt(30);B1=[0,-2/sqrt(5),1/sqrt(5)]';
+T1=htranspose([1,1,2])/sqrt(6);
+N1=htranspose([-5,1,2])/sqrt(30);
+B1=htranspose([0,-2/sqrt(5),1/sqrt(5)]);
 quiver3(1,0.5,1,1/sqrt(6),1/sqrt(6),2/sqrt(6),"g") -- T
 quiver3(1,0.5,1,-5/sqrt(30),1/sqrt(30),2/sqrt(30),"r")  -- N
 quiver3(1,0.5,1,0,-2/sqrt(5),1/sqrt(5),"b")  -- Bh
@@ -64,15 +70,18 @@ figure
 subplot(2,1,1)
 plot(t,kappa,"b")
 title("\\kappa and R for r(t)= [t; 0.5*t.^2; t.^2]");
-xlabel("t"),ylabel("\\kappa, curvature")
-hold off
+xlabel("t")
+ylabel("\\kappa, curvature")
+hold_off()
 subplot(2,1,2)
 plot(t,1./kappa,"r")
-xlabel("t"),ylabel("R, radius of curvature")
-hold off
+xlabel("t")
+ylabel("R, radius of curvature")
+hold_off()
 
 -- Osculating Circle
-rp1=rp(1);rpp1=rpp(1);
+rp1=rp(1);
+rpp1=rpp(1);
 norm_rp31 = norm(rp1,2)^3; 
 
 norm_rpXrpp1 = norm(cross(rp1,rpp1),2);

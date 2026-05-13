@@ -72,14 +72,14 @@ LRangeWPN3=MECH(5,4);
 --heat sinks
 HeatSink=MECH(1,6);
 --big loop for others
-while Continue!= 1
+while Continue != 1
     Round=Round+1;
 --Roll to for intiative
 ERoll=MULTIDICE(6,2); --Player 2 roll
 PRoll=MULTIDICE(6,2); --Player 1 roll
-while x!=1 --loop until results are not the same
+while x != 1 --loop until results are not the same
     x=1;
-if ERoll==PRoll
+if ERoll == PRoll
     ERoll=MULTIDICE(6,2); --Player 2 re-roll
     PRoll=MULTIDICE(6,2); --Player 1 re-roll
     x=0;
@@ -119,7 +119,11 @@ switch PDIR  --% player facing vector
     case 6
         FACEX=0.75;FACEY=0.866;
 end
-quiver(EPOSX,EPOSY,EFACEX,EFACEY,"LineWidth",2),hold,quiver(PPOSX,PPOSY,FACEX,FACEY,"LineWidth",2),xlim([-1, 7]), ylim([-1, 21])
+quiver(EPOSX,EPOSY,EFACEX,EFACEY,"LineWidth",2)
+hold
+quiver(PPOSX,PPOSY,FACEX,FACEY,"LineWidth",2)
+xlim([-1, 7])
+ ylim([-1, 21])
 tt=0:60:360;
 xz=cosd(tt);
 yz=sind(tt);
@@ -148,15 +152,15 @@ while m5<13
 plot(xz+6,yz+m5*1.732,"r")
 m5=m5+1;   
 end
-hold
+hold_on()
 --movement phase
-if INTIATIVE==0 --if Player 2 Wins intiative
+if INTIATIVE == 0 --if Player 2 Wins intiative
     disp("Player 1 Turn")
     
       
     PMOVE=input("Please enter a number (1) to walk or (2) to run ", "s");
      
-   if PMOVE== 2
+   if PMOVE == 2
        
        PMOVE=MRun;
        PSPEEDPEN=2;
@@ -178,8 +182,12 @@ PPENMOVE=Pilot+PSPEEDPEN;
                                --ask if you like to make multiple direction
                                --changes and in which direction
                                --pilot check for each change and tell if fails
-while TURNS!=0
-     quiver(EPOSX,EPOSY,EFACEX,EFACEY,"LineWidth",2),hold,quiver(PPOSX,PPOSY,FACEX,FACEY,"LineWidth",2),xlim([-1, 7]), ylim([-1, 21])
+while TURNS != 0
+     quiver(EPOSX,EPOSY,EFACEX,EFACEY,"LineWidth",2)
+hold
+quiver(PPOSX,PPOSY,FACEX,FACEY,"LineWidth",2)
+xlim([-1, 7])
+ ylim([-1, 21])
 tt=0:60:360;
 xz=cosd(tt);
 yz=sind(tt);
@@ -208,12 +216,14 @@ while m5<13
 plot(xz+6,yz+m5*1.732,"r")
 m5=m5+1;   
 end
-hold    
-     disp("you have "), disp(TURNS) ,disp("moves left.") 
+hold_on()
+     disp("you have ")
+ disp(TURNS) 
+disp("moves left.") 
 Movement=input("Please select one of the following: 1.turn left 2 turn right 3 Go foward a space 4 Go back a space 5 Do not move ")
           switch Movement
               case 1
-                  if PDIR ==6
+                  if PDIR == 6
                       PDIR=0;
                   end
                   
@@ -228,7 +238,7 @@ Movement=input("Please select one of the following: 1.turn left 2 turn right 3 G
                   TURNS=TURNS-1;
                   
               case 2
-                  if PDIR ==1 
+                  if PDIR == 1 
                       PDIR=7;
                   end
                   PDIR=PDIR-1;
@@ -406,7 +416,7 @@ end
   disp("Player 2 Turn")
   EMOVE=input("Please enter a number (1) to walk or (2) to run ", "s");
    
-   if EMOVE ==2
+   if EMOVE == 2
       
        EMOVE=MRun;
        ESPEEDPEN=2;
@@ -424,8 +434,12 @@ EPENMOVE=EPilot+ESPEEDPEN;
                                --ask if you like to make multiple direction
                                --changes and in which direction
                                --pilot check for each change and tell if fails
-while ETURNS!=0
-     quiver(EPOSX,EPOSY,EFACEX,EFACEY,"LineWidth",2),hold,quiver(PPOSX,PPOSY,FACEX,FACEY,"LineWidth",2),xlim([-1, 7]), ylim([-1, 21])
+while ETURNS != 0
+     quiver(EPOSX,EPOSY,EFACEX,EFACEY,"LineWidth",2)
+hold
+quiver(PPOSX,PPOSY,FACEX,FACEY,"LineWidth",2)
+xlim([-1, 7])
+ ylim([-1, 21])
 tt=0:60:360;
 xz=cosd(tt);
 yz=sind(tt);
@@ -454,12 +468,14 @@ while m5<13
 plot(xz+6,yz+m5*1.732,"r")
 m5=m5+1;   
 end
-hold
-     disp("you have "),disp(ETURNS) ,disp("moves left.") 
+hold_on()
+     disp("you have ")
+disp(ETURNS) 
+disp("moves left.") 
 Movement=input("Please select one of the following: 1.turn left 2 turn right 3 Go foward a space 4 Go back a space 5 Do not move ")
           switch Movement
               case 1
-                  if EDIR ==6
+                  if EDIR == 6
                       EDIR=0;
                   end
                   
@@ -474,7 +490,7 @@ Movement=input("Please select one of the following: 1.turn left 2 turn right 3 G
                   ETURNS=ETURNS-1;
                   
               case 2
-                  if EDIR ==1 
+                  if EDIR == 1 
                       EDIR=7;
                   end
                   EDIR=EDIR-1;
@@ -649,9 +665,9 @@ else
     disp("Player 2 Turn")
    
     EMOVE=input("Please enter a number (1) to walk or (2) to run ", "s");
-     while MLOOP!=1
+     while MLOOP != 1
         MLOOP=1;
-   if EMOVE==2
+   if EMOVE == 2
        
        EMOVE=MRun;
        ESPEEDPEN=2;
@@ -670,9 +686,15 @@ EPENMOVE=EPilot+ESPEEDPEN;
                                --ask if you like to make multiple direction
                                --changes and in which direction
                                --pilot check for each change and tell if fails
-while ETURNS!=0
-disp("you have "),disp(ETURNS),disp("moves left.") 
-quiver(EPOSX,EPOSY,EFACEX,EFACEY,"LineWidth",2),hold,quiver(PPOSX,PPOSY,FACEX,FACEY,"LineWidth",2),xlim([-1, 7]), ylim([-1, 21])
+while ETURNS != 0
+disp("you have ")
+disp(ETURNS)
+disp("moves left.") 
+quiver(EPOSX,EPOSY,EFACEX,EFACEY,"LineWidth",2)
+hold
+quiver(PPOSX,PPOSY,FACEX,FACEY,"LineWidth",2)
+xlim([-1, 7])
+ ylim([-1, 21])
 tt=0:60:360;
 xz=cosd(tt);
 yz=sind(tt);
@@ -701,11 +723,11 @@ while m5<13
 plot(xz+6,yz+m5*1.732,"r")
 m5=m5+1;   
 end
-hold
+hold_on()
 Movement=input("Please select one of the following:1.turn left 2 turn right 3 Go foward a space 4 Go back a space 5 Do not move ");
           switch Movement
               case 1
-                  if EDIR ==6
+                  if EDIR == 6
                       EDIR=0;
                   end
                   
@@ -720,7 +742,7 @@ Movement=input("Please select one of the following:1.turn left 2 turn right 3 Go
                   ETURNS=ETURNS-1;
                   
               case 2
-                  if EDIR ==1 
+                  if EDIR == 1 
                       EDIR=7;
                   end
                   EDIR=EDIR-1;
@@ -894,7 +916,7 @@ end
   disp("Player 1 Turn")
    PMOVE=input("Please enter a number (1) to walk or (2) to run ", "s");
   
-   if PMOVE==2
+   if PMOVE == 2
        
        PMOVE=MRun;
        PSPEEDPEN=2;
@@ -911,9 +933,15 @@ PPENMOVE=Pilot+PSPEEDPEN;
                                --ask if you like to make multiple direction
                                --changes and in which direction
                                --pilot check for each change and tell if fails
-while TURNS!=0
-disp("you have "), disp(TURNS) ,disp("moves left.")
-quiver(EPOSX,EPOSY,EFACEX,EFACEY,"LineWidth",2),hold,quiver(PPOSX,PPOSY,FACEX,FACEY,"LineWidth",2),xlim([-1, 7]), ylim([-1, 21])
+while TURNS != 0
+disp("you have ")
+ disp(TURNS) 
+disp("moves left.")
+quiver(EPOSX,EPOSY,EFACEX,EFACEY,"LineWidth",2)
+hold
+quiver(PPOSX,PPOSY,FACEX,FACEY,"LineWidth",2)
+xlim([-1, 7])
+ ylim([-1, 21])
 tt=0:60:360;
 xz=cosd(tt);
 yz=sind(tt);
@@ -942,11 +970,11 @@ while m5<13
 plot(xz+6,yz+m5*1.732,"r")
 m5=m5+1;   
 end
-hold
+hold_on()
 Movement=input("Please select one of the following: 1.turn left 2 turn right 3 Go foward a space 4 Go back a space 5 Do not move ");
           switch Movement
               case 1
-                  if PDIR ==6
+                  if PDIR == 6
                       PDIR=0;
                   end
                   
@@ -961,7 +989,7 @@ Movement=input("Please select one of the following: 1.turn left 2 turn right 3 G
                   TURNS=TURNS-1;
                   
               case 2
-                  if PDIR ==1 
+                  if PDIR == 1 
                       PDIR=7;
                   end
                   PDIR=PDIR-1;
@@ -1137,7 +1165,11 @@ end
   end
           
            --display postion change
-quiver(EPOSX,EPOSY,EFACEX,EFACEY,"LineWidth",2),hold,quiver(PPOSX,PPOSY,FACEX,FACEY,"LineWidth",2),xlim([-1, 7]), ylim([-1, 21])
+quiver(EPOSX,EPOSY,EFACEX,EFACEY,"LineWidth",2)
+hold
+quiver(PPOSX,PPOSY,FACEX,FACEY,"LineWidth",2)
+xlim([-1, 7])
+ ylim([-1, 21])
 tt=0:60:360;
 xz=cosd(tt);
 yz=sind(tt);
@@ -1166,7 +1198,7 @@ while m5<13
 plot(xz+6,yz+m5*1.732,"r")
 m5=m5+1;   
 end
-hold
+hold_on()
 --attack Phase
 --relative location
 switch PDIR
@@ -1221,9 +1253,11 @@ switch EDIR
            ENUMWEAP=0; 
         end
 end  
-if INTIATIVE==0
+if INTIATIVE == 0
     disp("Player 1 TURN")
-    disp("You have "),disp(NUMWEAP),disp("avialible to fire. Do you wish to fire?")
+    disp("You have ")
+disp(NUMWEAP)
+disp("avialible to fire. Do you wish to fire?")
     switch NUMWEAP
         case 3 --%all weapons intacted
             attack=input("Please select a number to fire aweapon. 1. Fires medium Laser. 2. Fires Auto cannon. 3. Fires large laser. 4 Alpha strike (fires all). 5.Do not fire : ","s");
@@ -1234,7 +1268,7 @@ if INTIATIVE==0
                     DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
                     
-                   if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                   if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -1250,7 +1284,7 @@ if INTIATIVE==0
              
                     ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -1300,7 +1334,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                         DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
                     
-                    if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                    if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -1315,7 +1349,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                     ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -1362,7 +1396,7 @@ GENHEAT=HeatWPN2;
                      DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
                     
-                    if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                    if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -1377,7 +1411,7 @@ GENHEAT=HeatWPN2;
                     ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -1423,7 +1457,7 @@ GENHEAT=HeatWPN3;
                 case 4 --%case 1 overall selection
                      DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
-                     if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                     if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -1437,7 +1471,7 @@ GENHEAT=HeatWPN3;
                     
                     ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -1483,7 +1517,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                     end
                      DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
-                     if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                     if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -1498,7 +1532,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                      ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -1542,7 +1576,7 @@ GENHEAT=GENHEAT+HeatWPN2;
                     end
                      DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
-                     if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                     if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -1557,7 +1591,7 @@ GENHEAT=GENHEAT+HeatWPN2;
                     ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -1604,14 +1638,14 @@ GENHEAT=GENHEAT+HeatWPN3;
             end
             
         case 2  --%1 weapon destroyed
-            if RA<=0
+            if RA <= 0
                 attack=input("Please select a weapon to fire. 1. Fires Auto cannon. 2. Fires small laser. 3 Alpha strike (fires all). 4.Do not fire : ")
    switch attack
        case 1
             DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
                   
-                  if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                  if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -1625,7 +1659,7 @@ GENHEAT=GENHEAT+HeatWPN3;
                      ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -1670,7 +1704,7 @@ GENHEAT=HeatWPN2;
        case 2
             DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
-                    if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                    if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -1684,7 +1718,7 @@ GENHEAT=HeatWPN2;
                           ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -1730,7 +1764,7 @@ GENHEAT=GENHEAT+HeatWPN3;
        case 3    
             DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
-                      if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                      if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -1745,7 +1779,7 @@ GENHEAT=GENHEAT+HeatWPN3;
                      ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -1789,7 +1823,7 @@ GENHEAT=GENHEAT+HeatWPN2;
                     end
                      DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
-                     if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                     if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -1804,7 +1838,7 @@ GENHEAT=GENHEAT+HeatWPN2;
                     ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -1850,13 +1884,13 @@ GENHEAT=GENHEAT+HeatWPN3;
            APHASE=3;
             end
    end
-        if LT <=0
+        if LT <= 0
             attack=input("Please select a weapon to fire. 1. Fires medium laser 2. Fires large laser. 3 Alpha strike (fires all). 4. Do not fire: ")
             switch attack
               case 1
                    DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
-                   if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                   if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -1869,7 +1903,7 @@ GENHEAT=GENHEAT+HeatWPN3;
                     end
                     ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -1917,7 +1951,7 @@ GENHEAT=GENHEAT+HeatWPN1;
               case 2
                    DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
-                   if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                   if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -1931,7 +1965,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                     ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -1976,7 +2010,7 @@ GENHEAT=GENHEAT+HeatWPN3;
               case 3
                    DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
-                   if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                   if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -1989,7 +2023,7 @@ GENHEAT=GENHEAT+HeatWPN3;
                     end
                       ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -2035,7 +2069,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                     end
                      DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
-                     if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                     if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -2049,7 +2083,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                     ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -2096,14 +2130,14 @@ GENHEAT=GENHEAT+HeatWPN3;
                   
         end
         end
-            if LA<=0
+            if LA <= 0
                 attack=input("Please select a weapon to fire. 1. Fires medium laser 2.Fires Auto Cannon. 3 Alpha strike (fires all). 4. Do Not Fire: ") 
                  DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
            switch attack
                
                case 1
-                    if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                    if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -2116,7 +2150,7 @@ GENHEAT=GENHEAT+HeatWPN3;
                     end
                        ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -2162,7 +2196,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                     end
                     
                case 2
-                    if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                    if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -2176,7 +2210,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                      ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -2219,7 +2253,7 @@ GENHEAT=GENHEAT+HeatWPN2;
                       GENHEAT=GENHEAT+HeatWPN2;
                     end
                case 3
-                    if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                    if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -2232,7 +2266,7 @@ GENHEAT=GENHEAT+HeatWPN2;
                     end
                     ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -2275,7 +2309,7 @@ end
                         disp("Medium laser missed")
                       GENHEAT=GENHEAT+HeatWPN1;
                     end
-                     if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                     if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -2289,7 +2323,7 @@ end
                     ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -2336,13 +2370,13 @@ end
            end
             end
         case 1
-            if LA<=0 & LT<=0
+            if LA <= 0 & LT <= 0
                attack=input("Please select a weapon to fire. 1 Fires medium laser 2. Do not fire")
                 DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
                switch attack
                    case 1
-                    if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                    if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -2355,7 +2389,7 @@ end
                     end
                     ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -2403,13 +2437,13 @@ GENHEAT=GENHEAT+HeatWPN1;
                        APHASE=3;
                end
               
-            if RA<=0&LA<=0
+            if RA <= 0&LA <= 0
                  DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
                 attack=input("Please select a weapon to fire. 1 Fires Auto Cannon 2. Do not fire")
                 switch attack
                     case 1
-                         if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                         if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -2423,7 +2457,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                     ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -2471,13 +2505,13 @@ GENHEAT=GENHEAT+HeatWPN2;
                 end
                 
             end
-            if RA<=0 & LA<=0
+            if RA <= 0 & LA <= 0
                  DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
               attack=input("Please select a weapon to fire. 1 Large laser 2. Do not fire")
               switch attack
                   case 1
-                    if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                    if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -2492,7 +2526,7 @@ GENHEAT=GENHEAT+HeatWPN2;
                     ATTCHECK=Gunnery+ESPEEDPEN+PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -2545,7 +2579,9 @@ GENHEAT=GENHEAT+HeatWPN3;
     end
 --% Player 2 attacks
 disp("Player 2 TURN")
-  disp("You have "),disp(ENUMWEAP), disp("avialible to fire. Do you wish to fire?")
+  disp("You have ")
+disp(ENUMWEAP)
+ disp("avialible to fire. Do you wish to fire?")
     switch ENUMWEAP
         case 3 --%all weapons intacted
             attack=input("Please select a number to fire aweapon. 1. Fires medium Laser. 2. Fires Auto cannon. 3. Fires large laser. 4 Alpha strike (fires all). 5.Do not fire : ")
@@ -2556,7 +2592,7 @@ disp("Player 2 TURN")
                     DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
                     
-                   if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                   if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -2572,7 +2608,7 @@ disp("Player 2 TURN")
              
                     ATTCHECK=EGunnery-PSPEEDPEN+ESPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -2622,7 +2658,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                         DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
                     
-                    if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                    if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -2637,7 +2673,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                     ATTCHECK=EGunnery-PSPEEDPEN+ESPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -2683,7 +2719,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                 case 3 --%case 1 selection
                     DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                        ADIST=DIST/1.732;
-                    if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                    if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -2698,7 +2734,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -2745,7 +2781,7 @@ EGENHEAT=EGENHEAT+HeatWPN3;
                     
                     DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                        ADIST=DIST/1.732;
-                     if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                     if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -2760,7 +2796,7 @@ EGENHEAT=EGENHEAT+HeatWPN3;
                     
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -2806,7 +2842,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                     end
                     DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                        ADIST=DIST/1.732;
-                     if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                     if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -2821,7 +2857,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                      ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -2865,7 +2901,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                     end
                     DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                        ADIST=DIST/1.732;
-                     if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                     if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -2880,7 +2916,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -2927,13 +2963,13 @@ EGENHEAT=EGENHEAT+HeatWPN3;
             end
             
         case 2  --%1 weapon destroyed
-            if RA<=0
+            if RA <= 0
                 attack=input("Please select a weapon to fire. 1. Fires Auto cannon. 2. Fires small laser. 3 Alpha strike (fires all). 4.Do not fire : ")
    switch attack
        case 1
                   DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                        ADIST=DIST/1.732;
-                  if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                  if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -2947,7 +2983,7 @@ EGENHEAT=EGENHEAT+HeatWPN3;
                      ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -2992,7 +3028,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
        case 2
                       DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                        ADIST=DIST/1.732;
-                    if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                    if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -3006,7 +3042,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                           ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -3052,7 +3088,7 @@ EGENHEAT=EGENHEAT+HeatWPN3;
        case 3    
                        DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                        ADIST=DIST/1.732;
-                      if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                      if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -3067,7 +3103,7 @@ EGENHEAT=EGENHEAT+HeatWPN3;
                      ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -3111,7 +3147,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                     end
                     DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                        ADIST=DIST/1.732;
-                     if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                     if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -3126,7 +3162,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -3172,13 +3208,13 @@ EGENHEAT=EGENHEAT+HeatWPN3;
            APHASE=3;
             end
    end
-        if LT <=0
+        if LT <= 0
             attack=input("Please select a weapon to fire. 1. Fires medium laser 2. Fires large laser. 3 Alpha strike (fires all). 4. Do not fire: ")
           switch attack
               case 1
                   DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                        ADIST=DIST/1.732;
-                   if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                   if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -3191,7 +3227,7 @@ EGENHEAT=EGENHEAT+HeatWPN3;
                     end
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -3239,7 +3275,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
               case 2
                   DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                        ADIST=DIST/1.732;
-                   if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                   if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -3253,7 +3289,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -3298,7 +3334,7 @@ EGENHEAT=EGENHEAT+HeatWPN3;
               case 3
                   DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                        ADIST=DIST/1.732;
-                   if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                   if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -3311,7 +3347,7 @@ EGENHEAT=EGENHEAT+HeatWPN3;
                     end
                       ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -3357,7 +3393,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                     end
                     DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                        ADIST=DIST/1.732;
-                     if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                     if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -3371,7 +3407,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -3418,14 +3454,14 @@ EGENHEAT=EGENHEAT+HeatWPN3;
                   
         end
         end
-            if LA<=0
+            if LA <= 0
                 attack=input("Please select a weapon to fire. 1. Fires medium laser 2.Fires Auto Cannon. 3 Alpha strike (fires all). 4. Do Not Fire: ") 
            switch attack
                
                case 1
                        DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                        ADIST=DIST/1.732;
-                    if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                    if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -3438,7 +3474,7 @@ EGENHEAT=EGENHEAT+HeatWPN3;
                     end
                        ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -3486,7 +3522,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                case 2
                        DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                        ADIST=DIST/1.732;
-                    if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                    if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -3500,7 +3536,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                      ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -3545,7 +3581,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                case 3
                        DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                        ADIST=DIST/1.732;
-                    if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                    if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -3558,7 +3594,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                     end
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -3604,7 +3640,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                     end
                        DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                        ADIST=DIST/1.732;
-                     if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                     if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -3618,7 +3654,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -3665,13 +3701,13 @@ end
            end
             end
         case 1
-            if LA<=0 & LT<=0
+            if LA <= 0 & LT <= 0
                attack=input("Please select a weapon to fire. 1 Fires medium laser 2. Do not fire")
                DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                 ADIST=DIST/1.732;
                switch attack
                    case 1
-                    if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                    if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -3684,7 +3720,7 @@ end
                     end
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -3732,14 +3768,14 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                        APHASE=3;
                end
               
-            if RA<=0&LA<=0
+            if RA <= 0&LA <= 0
                 attack=input("Please select a weapon to fire. 1 Fires Auto Cannon 2. Do not fire")
                        DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                        ADIST=DIST/1.732;
                 switch attack
                     
                     case 1
-                         if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                         if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -3753,7 +3789,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -3801,11 +3837,11 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                 end
                 
             end
-            if RA<=0 & LA<=0
+            if RA <= 0 & LA <= 0
               attack=input("Please select a weapon to fire. 1 Large laser 2. Do not fire")
               switch attack
                   case 1
-                    if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                    if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -3820,7 +3856,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -3874,7 +3910,9 @@ EGENHEAT=EGENHEAT+HeatWPN3;
     
 else
     disp("Player 2 TURN")
-     disp("You have "),disp(ENUMWEAP), disp(" Do you wish to fire?")
+     disp("You have ")
+disp(ENUMWEAP)
+ disp(" Do you wish to fire?")
     switch ENUMWEAP
         case 3 --%all weapons intacted
             attack=input("Please select a number to fire aweapon. 1. Fires medium Laser. 2. Fires Auto cannon. 3. Fires large laser. 4 Alpha strike (fires all). 5.Do not fire : ")
@@ -3886,7 +3924,7 @@ else
                     DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
                     
-                   if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                   if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -3902,7 +3940,7 @@ else
              
                     ATTCHECK=EGunnery-PSPEEDPEN+ESPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -3952,7 +3990,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                         DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
                     
-                    if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                    if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -3967,7 +4005,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                     ATTCHECK=EGunnery-PSPEEDPEN+ESPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -4013,7 +4051,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                 case 3 --%case 1 selection
                        DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                        ADIST=DIST/1.732;
-                    if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                    if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -4028,7 +4066,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -4074,7 +4112,7 @@ EGENHEAT=EGENHEAT+HeatWPN3;
                 case 4 --%case 1 overall selection
                      DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                        ADIST=DIST/1.732;
-                     if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                     if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -4088,7 +4126,7 @@ EGENHEAT=EGENHEAT+HeatWPN3;
                     
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -4132,7 +4170,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                         disp("Medium laser missed")
                       EGENHEAT=EGENHEAT+HeatWPN1;
                     end
-                     if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                     if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -4147,7 +4185,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                      ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -4189,7 +4227,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                         disp("Auto cannon missed")
                       EGENHEAT=EGENHEAT+HeatWPN2;
                     end
-                     if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                     if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -4204,7 +4242,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -4251,12 +4289,12 @@ EGENHEAT=EGENHEAT+HeatWPN3;
             end
             
         case 2  --%1 weapon destroyed
-            if RA<=0
+            if RA <= 0
                 attack=input("Please select a weapon to fire. 1. Fires Auto cannon. 2. Fires small laser. 3 Alpha strike (fires all). 4.Do not fire : ")
    switch attack
        case 1
                   
-                  if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                  if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -4270,7 +4308,7 @@ EGENHEAT=EGENHEAT+HeatWPN3;
                      ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -4313,7 +4351,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                       EGENHEAT=EGENHEAT+HeatWPN2;
                     end
        case 2
-                    if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                    if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -4327,7 +4365,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                           ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -4371,7 +4409,7 @@ EGENHEAT=EGENHEAT+HeatWPN3;
                     end
                     
        case 3    
-                      if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                      if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -4386,7 +4424,7 @@ EGENHEAT=EGENHEAT+HeatWPN3;
                      ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -4428,7 +4466,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                         disp("Auto cannon missed")
                       EGENHEAT=EGENHEAT+HeatWPN2;
                     end
-                     if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                     if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -4443,7 +4481,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -4489,11 +4527,11 @@ EGENHEAT=EGENHEAT+HeatWPN3;
            APHASE=3;
             end
    end
-        if LT <=0
+        if LT <= 0
             attack=input("Please select a weapon to fire. 1. Fires medium laser 2. Fires large laser. 3 Alpha strike (fires all). 4. Do not fire: ")
           switch attack
               case 1
-                   if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                   if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -4506,7 +4544,7 @@ EGENHEAT=EGENHEAT+HeatWPN3;
                     end
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -4552,7 +4590,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                     end
                     
               case 2
-                   if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                   if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -4566,7 +4604,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -4609,7 +4647,7 @@ EGENHEAT=EGENHEAT+HeatWPN3;
                       EGENHEAT=EGENHEAT+HeatWPN3;
                     end
               case 3
-                   if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                   if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -4622,7 +4660,7 @@ EGENHEAT=EGENHEAT+HeatWPN3;
                     end
                       ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -4666,7 +4704,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                         disp("Medium laser missed")
                       EGENHEAT=EGENHEAT+HeatWPN1;
                     end
-                     if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                     if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -4680,7 +4718,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -4727,12 +4765,12 @@ EGENHEAT=EGENHEAT+HeatWPN3;
                   
         end
         end
-            if LA<=0
+            if LA <= 0
                 attack=input("Please select a weapon to fire. 1. Fires medium laser 2.Fires Auto Cannon. 3 Alpha strike (fires all). 4. Do Not Fire: ") 
            switch attack
                
                case 1
-                    if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                    if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -4745,7 +4783,7 @@ EGENHEAT=EGENHEAT+HeatWPN3;
                     end
                        ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -4791,7 +4829,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                     end
                     
                case 2
-                    if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                    if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -4805,7 +4843,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                      ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -4848,7 +4886,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                       EGENHEAT=EGENHEAT+HeatWPN2;
                     end
                case 3
-                    if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                    if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -4861,7 +4899,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                     end
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -4905,7 +4943,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                         disp("Medium laser missed")
                       EGENHEAT=EGENHEAT+HeatWPN1;
                     end
-                     if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                     if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -4919,7 +4957,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -4966,11 +5004,11 @@ end
            end
             end
         case 1
-            if LA<=0 & LT<=0
+            if LA <= 0 & LT <= 0
                attack=input("Please select a weapon to fire. 1 Fires medium laser 2. Do not fire")
                switch attack
                    case 1
-                    if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                    if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -4983,7 +5021,7 @@ end
                     end
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -5031,11 +5069,11 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                        APHASE=3;
                end
               
-            if RA<=0&LA<=0
+            if RA <= 0&LA <= 0
                 attack=input("Please select a weapon to fire. 1 Fires Auto Cannon 2. Do not fire")
                 switch attack
                     case 1
-                         if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                         if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -5049,7 +5087,7 @@ EGENHEAT=EGENHEAT+HeatWPN1;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -5097,11 +5135,11 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                 end
                 
             end
-            if RA<=0 & LA<=0
+            if RA <= 0 & LA <= 0
               attack=input("Please select a weapon to fire. 1 Large laser 2. Do not fire")
               switch attack
                   case 1
-                    if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                    if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -5116,7 +5154,7 @@ EGENHEAT=EGENHEAT+HeatWPN2;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -5169,7 +5207,9 @@ EGENHEAT=EGENHEAT+HeatWPN3;
     end
     
 disp("PLAYER 1 TURN")
-  disp("You have "),disp(NUMWEAP), disp(" Do you wish to fire?")
+  disp("You have ")
+disp(NUMWEAP)
+ disp(" Do you wish to fire?")
     switch NUMWEAP
         case 3 --%all weapons intacted
             attack=input("Please select a number to fire aweapon. 1. Fires medium Laser. 2. Fires Auto cannon. 3. Fires large laser. 4 Alpha strike (fires all). 5.Do not fire : ")
@@ -5183,7 +5223,7 @@ disp("PLAYER 1 TURN")
                     DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
                     
-                   if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                   if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -5199,7 +5239,7 @@ disp("PLAYER 1 TURN")
              
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -5249,7 +5289,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                         DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
                     
-                    if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                    if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -5264,7 +5304,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -5308,7 +5348,7 @@ GENHEAT=HeatWPN2;
                     end
                     
                 case 3 --%case 1 selection
-                    if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                    if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -5323,7 +5363,7 @@ GENHEAT=HeatWPN2;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -5368,7 +5408,7 @@ GENHEAT=HeatWPN3;
                     
                 case 4 --%case 1 overall selection
                     
-                     if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                     if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -5382,7 +5422,7 @@ GENHEAT=HeatWPN3;
                     
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -5426,7 +5466,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                         disp("Medium laser missed")
                       GENHEAT=GENHEAT+HeatWPN1;
                     end
-                     if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                     if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -5441,7 +5481,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -5483,7 +5523,7 @@ GENHEAT=GENHEAT+HeatWPN2;
                         disp("Auto cannon missed")
                       GENHEAT=GENHEAT+HeatWPN2;
                     end
-                     if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                     if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -5498,7 +5538,7 @@ GENHEAT=GENHEAT+HeatWPN2;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -5545,7 +5585,7 @@ GENHEAT=GENHEAT+HeatWPN3;
             end
             
         case 2  --%1 weapon destroyed
-            if RA<=0
+            if RA <= 0
                 attack=input("Please select a weapon to fire. 1. Fires Auto cannon. 2. Fires small laser. 3 Alpha strike (fires all). 4.Do not fire : ")
                  DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
@@ -5553,7 +5593,7 @@ GENHEAT=GENHEAT+HeatWPN3;
    switch attack
        case 1
                   
-                  if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                  if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -5567,7 +5607,7 @@ GENHEAT=GENHEAT+HeatWPN3;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -5612,7 +5652,7 @@ GENHEAT=HeatWPN2;
        case 2
            DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
-                    if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                    if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -5626,7 +5666,7 @@ GENHEAT=HeatWPN2;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -5672,7 +5712,7 @@ GENHEAT=GENHEAT+HeatWPN3;
        case 3    
                      DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
-                      if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                      if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -5687,7 +5727,7 @@ GENHEAT=GENHEAT+HeatWPN3;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -5729,7 +5769,7 @@ GENHEAT=GENHEAT+HeatWPN2;
                         disp("Auto cannon missed")
                       GENHEAT=GENHEAT+HeatWPN2;
                     end
-                     if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                     if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -5744,7 +5784,7 @@ GENHEAT=GENHEAT+HeatWPN2;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -5790,7 +5830,7 @@ GENHEAT=GENHEAT+HeatWPN3;
            APHASE=3;
             end
    end
-        if LT <=0
+        if LT <= 0
             DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
             attack=input("Please select a weapon to fire. 1. Fires medium laser 2. Fires large laser. 3 Alpha strike (fires all). 4. Do not fire: ")
@@ -5799,7 +5839,7 @@ GENHEAT=GENHEAT+HeatWPN3;
                     
           switch attack
               case 1
-                   if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                   if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -5812,7 +5852,7 @@ GENHEAT=GENHEAT+HeatWPN3;
                     end
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -5858,7 +5898,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                     end
                     
               case 2
-                   if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                   if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -5872,7 +5912,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -5915,7 +5955,7 @@ GENHEAT=GENHEAT+HeatWPN3;
                       GENHEAT=GENHEAT+HeatWPN3;
                     end
               case 3
-                   if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                   if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -5928,7 +5968,7 @@ GENHEAT=GENHEAT+HeatWPN3;
                     end
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -5972,7 +6012,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                         disp("Medium laser missed")
                       GENHEAT=GENHEAT+HeatWPN1;
                     end
-                     if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                     if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -5986,7 +6026,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -6033,14 +6073,14 @@ GENHEAT=GENHEAT+HeatWPN3;
                   
         end
         end
-            if LA<=0
+            if LA <= 0
                 attack=input("Please select a weapon to fire. 1. Fires medium laser 2.Fires Auto Cannon. 3 Alpha strike (fires all). 4. Do Not Fire: ") 
                 DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
            switch attack
                
                case 1
-                    if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                    if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -6053,7 +6093,7 @@ GENHEAT=GENHEAT+HeatWPN3;
                     end
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -6099,7 +6139,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                     end
                     
                case 2
-                    if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                    if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -6113,7 +6153,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -6156,7 +6196,7 @@ GENHEAT=GENHEAT+HeatWPN2;
                       GENHEAT=GENHEAT+HeatWPN2;
                     end
                case 3
-                    if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                    if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -6169,7 +6209,7 @@ GENHEAT=GENHEAT+HeatWPN2;
                     end
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -6212,7 +6252,7 @@ end
                         disp("Medium laser missed")
                       GENHEAT=GENHEAT+HeatWPN1;
                     end
-                     if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                     if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -6226,7 +6266,7 @@ end
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -6273,13 +6313,13 @@ end
            end
             end
         case 1
-            if LA<=0 & LT<=0
+            if LA <= 0 & LT <= 0
                 DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
                attack=input("Please select a weapon to fire. 1 Fires medium laser 2. Do not fire")
                switch attack
                    case 1
-                    if ADIST==SRangeWPN1 || ADIST<SRangeWPN1
+                    if ADIST == SRangeWPN1 || ADIST<SRangeWPN1
                         RANGES=1;
                     end
                     
@@ -6292,7 +6332,7 @@ end
                     end
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                         --display hit message and dmg location
                         
 PARoll=MULTIDICE(6,2); 
@@ -6340,13 +6380,13 @@ GENHEAT=GENHEAT+HeatWPN1;
                        APHASE=3;
                end
               
-            if RA<=0&LA<=0
+            if RA <= 0&LA <= 0
                 attack=input("Please select a weapon to fire. 1 Fires Auto Cannon 2. Do not fire")
                 DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
                 switch attack
                     case 1
-                         if ADIST==SRangeWPN2 || ADIST<SRangeWPN2
+                         if ADIST == SRangeWPN2 || ADIST<SRangeWPN2
                         RANGES=1;
                     end
                     
@@ -6360,7 +6400,7 @@ GENHEAT=GENHEAT+HeatWPN1;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2); 
 switch PARoll
     case 2
@@ -6408,13 +6448,13 @@ GENHEAT=GENHEAT+HeatWPN2;
                 end
                 
             end
-            if RA<=0 & LA<=0
+            if RA <= 0 & LA <= 0
               attack=input("Please select a weapon to fire. 1 Large laser 2. Do not fire")
               DIST=sqrt((EPOSX-PPOSX)^2+(EPOSY-PPOSY)^2);
                     ADIST=DIST/1.732;
               switch attack
                   case 1
-                    if ADIST==SRangeWPN3 || ADIST<SRangeWPN3
+                    if ADIST == SRangeWPN3 || ADIST<SRangeWPN3
                         RANGES=1;
                     end
                     
@@ -6429,7 +6469,7 @@ GENHEAT=GENHEAT+HeatWPN2;
                     ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
-                    if ATTROLL>= ATTCHECK
+                    if ATTROLL >= ATTCHECK
                     PARoll=MULTIDICE(6,2);
 switch PARoll
     case 2
@@ -6482,7 +6522,7 @@ GENHEAT=GENHEAT+HeatWPN3;
     end
 end
 --apply damage correctly
-if LA<= 0
+if LA <= 0
      disp("Player 1 Left Arm destroyed")
 PEXCESS=0-LA;
 LA=0;
@@ -6490,35 +6530,35 @@ LT=LT-PEXCESS;
 PEXCESS=0;
 NUMWEAP=NUMWEAP-1;
 end
-if RA<= 0
+if RA <= 0
     disp("Player 1 Right Arm destroyed")
 PEXCESS=0-RA;
 RA=0;
 RT=RT-PEXCESS;
 PEXCESS=0;
 end
-if LL<= 0
+if LL <= 0
     disp("Player 1 Left Leg destroyed")
 PEXCESS=0-LL;
 LL=0;
 LT=LT-PEXCESS;
 PEXCESS=0;
 end
-if RL<= 0
+if RL <= 0
     disp("Player 1 Right Leg destroyed")
 PEXCESS=0-RL;
 RL=0;
 RL=RL-PEXCESS;
 PEXCESS=0;
 end
-if RT<= 0
+if RT <= 0
     disp("Player 1 Right Torso destroyed")
 PEXCESS=0-RT;
 RT=0;
 CT=CT-PEXCESS;
 PEXCESS=0;
 end
-if LT<= 0
+if LT <= 0
     disp("Player 1 Left Torso destroyed")
 PEXCESS=0-LT;
 LT=0;
@@ -6526,7 +6566,7 @@ CT=CT-PEXCESS;
 PEXCESS=0;
 NUMWEAP=NUMWEAP-1;
 end
-if ELA<= 0
+if ELA <= 0
     disp("Player 2 Left arm destroyed")
 EEXCESS=0-ELA;
 LA=0;
@@ -6534,7 +6574,7 @@ ELT=ELT-EEXCESS;
 EEXCESS=0;
 ENUMWEAP=ENUMWEAP-1;
 end
-if ERA<= 0
+if ERA <= 0
     disp("Player 2 Right arm destroyed")
 EEXCESS=0-ERA;
 ERA=0;
@@ -6542,28 +6582,28 @@ ERT=ERT-EEXCESS;
 EEXCESS=0;
 ENUMWEAP=ENUMWEAP-1;
 end
-if ELL<= 0
+if ELL <= 0
     disp("Player 2 Left Leg destroyed")
 EEXCESS=0-ELL;
 ELL=0;
 ELT=ELT-EEXCESS;
 EEXCESS=0;
 end
-if ERL<= 0
+if ERL <= 0
     disp("Player 2 Right Leg destroyed")
 EEXCESS=0-ERL;
 ERL=0;
 ERL=ERL-EEXCESS;
 EEXCESS=0;
 end
-if ERT<= 0
+if ERT <= 0
     disp("Player 2 Right Torso destroyed")
 EEXCESS=0-ERT;
 ERT=0;
 ECT=ECT-EEXCESS;
 EEXCESS=0;
 end
-if ELT<= 0
+if ELT <= 0
     disp("Player 2 Left Torso destroyed")
 EEXCESS=0-ELT;
 ELT=0;
@@ -6572,37 +6612,37 @@ EEXCESS=0;
 ENUMWEAP=ENUMWEAP-1;
 end
 --end of game conditions
-if ECT!=0 --Conditions for enemy defeat
+if ECT != 0 --Conditions for enemy defeat
     Continue=0;
 else
     Continue=1;
     ENDGAME=0;
 end
-if EHead!=0
+if EHead != 0
     Continue=0;
 else
     Continue=1;
     ENDGAME=0;
 end
-if CT!=0  --Conditions for player defeat
+if CT != 0  --Conditions for player defeat
     Continue=0;
 else
     Continue=1;
     ENDGAME=1;
 end
-if Head!=0  --Conditions for player defeat
+if Head != 0  --Conditions for player defeat
     Continue=0;
 else
     Continue=1;
     ENDGAME=1;
 end
-if CT<=0 && ECT<=0 --Conditions for Draw
+if CT <= 0 && ECT <= 0 --Conditions for Draw
     Continue=1;
     ENDGAME=3;
 else
     Continue=0;
 end
-if Head<=0 && EHead <=0 --Conditions for Draw
+if Head <= 0 && EHead <= 0 --Conditions for Draw
     Continue=1;
     ENDGAME=3;
 else
@@ -6611,13 +6651,13 @@ end
    
 Quit=input("Do you wish to continue? (y/n): ","s");-- Quit option
 switch Quit
-    case 'Y'
+    case "Y"
          Continue=0;
-    case 'y'
+    case "y"
          Continue=0;
-    case 'YES'
+    case "YES"
          Continue=0;
-    case 'yes'
+    case "yes"
          Continue=0;
     otherwise 
         Continue=1;
@@ -6627,23 +6667,23 @@ end
 --Heat phase
 HEAT=GENHEAT-HeatSink;
 if HEAT>0
-   if HEAT>= 5&& HEAT<=9
+   if HEAT >= 5&& HEAT <= 9
        STAT=-1;
    end
-   if HEAT<9 && HEAT<=14
+   if HEAT<9 && HEAT <= 14
        STAT=-2;
    end
-   if HEAT<14 && HEAT<=19
+   if HEAT<14 && HEAT <= 19
        STAT=-3;
    end
    
-    if HEAT>= 8&& HEAT<=12
+    if HEAT >= 8&& HEAT <= 12
        STAT2=-1;
    end
-   if HEAT<12 && HEAT<=16
+   if HEAT<12 && HEAT <= 16
        STAT2=-2;
    end
-   if HEAT<16 && HEAT<=21
+   if HEAT<16 && HEAT <= 21
        STAT2=-3;
    end
    Pilot1=Pilot;
@@ -6660,23 +6700,23 @@ end
        
 EHEAT=EGENHEAT-HeatSink;
 if EHEAT>0
-   if EHEAT>= 5&& EHEAT<=9
+   if EHEAT >= 5&& EHEAT <= 9
        ESTAT=-1;
    end
-   if HEAT<9 && EHEAT<=14
+   if HEAT<9 && EHEAT <= 14
        ESTAT=-2;
    end
-   if EHEAT<14 && EHEAT<=19
+   if EHEAT<14 && EHEAT <= 19
        ESTAT=-3;
    end
    
-    if EHEAT>= 8 && EHEAT<=12
+    if EHEAT >= 8 && EHEAT <= 12
        ESTAT2=-1;
    end
-   if EHEAT<12 && EHEAT<=16
+   if EHEAT<12 && EHEAT <= 16
        ESTAT2=-2;
    end
-   if EHEAT<16 && EHEAT<=21
+   if EHEAT<16 && EHEAT <= 21
        ESTAT2=-3;
    end
    EPilot1=EPilot;
@@ -6692,9 +6732,12 @@ end
 NUMWEAP=3;
 ENUMWEAP=3;
 --end of round
-disp("End of Round "),disp(Round)
-disp("Player 1 heat level is "), disp(GENHEAT)
-disp("Player 2 heat level is "), disp(EGENHEAT)
+disp("End of Round ")
+disp(Round)
+disp("Player 1 heat level is ")
+ disp(GENHEAT)
+disp("Player 2 heat level is ")
+ disp(EGENHEAT)
     
 --end big loop
 end
@@ -6715,7 +6758,7 @@ function out=DICE(n)
 Total=1;
 k=0;
 m=1;
-while k!=n-1
+while k != n-1
     
     Roll=randn(m);
     if Roll >= 0
@@ -6738,4 +6781,8 @@ for n=1:y
     Total=Total+Roll;
 end
 z=Total;
+end
+end
+end
+
 }

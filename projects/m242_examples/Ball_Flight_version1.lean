@@ -15,16 +15,25 @@ octave! {
 
 
 -- problem parameters
-t0=0;a0=-9.8;h0=10; -- initial time,acceleration, height
-v0=100;phi=30*pi/180;v0x=v0*cos(phi);vy0=v0*sin(phi); -- initial velocity
-x0=0;y0=h0; -- initial position
+t0=0;a0=-9.8;
+h0=10; -- initial time,acceleration, height
+v0=100;
+phi=30*pi/180;
+v0x=v0*cos(phi);
+vy0=v0*sin(phi); -- initial velocity
+x0=0;
+y0=h0; -- initial position
 
 -- algorithm parameters
 dt=0.01;MaxSteps=10^6;
 format SHORTG
 format compact
 -- initialize algorithm variables
-tnow=t0;vxnow=vx0;vynow=vy0;xnow=x0;ynow=y0;
+tnow=t0;
+vxnow=vx0;
+vynow=vy0;
+xnow=x0;
+ynow=y0;
 disp("step, time, x, y, vx, vy")
 disp([0,tnow,xnow,ynow,vxnow,vynow]) -- show initial state
 
@@ -32,21 +41,35 @@ disp([0,tnow,xnow,ynow,vxnow,vynow]) -- show initial state
 for k=1:MaxSteps
     
     tprev=tnow;
-    xprev=xnow;yprev=ynow;vxprev=vxnow;vyprev=vynow; -- hold previous state
-    vxnow=vxprev; vynow=vyprev+a0*dt; -- update velocities
-    xnow=xprev+vxprev*dt; ynow=yprev+vyprev*dt;-- update position
+    xprev=xnow;
+yprev=ynow;
+vxprev=vxnow;
+vyprev=vynow; -- hold previous state
+    vxnow=vxprev;
+ vynow=vyprev+a0*dt; -- update velocities
+    xnow=xprev+vxprev*dt;
+ ynow=yprev+vyprev*dt;-- update position
     tnow = tnow+dt;
     
-    if rem(k,20)==0   -- show current state
+    if rem(k,20) == 0   -- show current state
         disp([k,tnow,xnow,ynow,vxnow,vynow])
     end  
     -- max height test and capture
     if vynow*vyprev <= 0
-        kymax=k;tmax=tnow;ymax=ynow;xmax=xnow;vxmax=vxnow;vymax=vynow;
+        kymax=k;
+tmax=tnow;
+ymax=ynow;
+xmax=xnow;
+vxmax=vxnow;vymax=vynow;
     end
     if ynow*yprev <= 0   -- ground impact test, capture, quit loop
-        kend=k;yend=yprev;xend=xprev;vxend=vxprev;vyend=vyprev;tend=tprev;
-        break  -- causes jump out of the 'for' loop
+        kend=k;
+yend=yprev;
+xend=xprev;
+vxend=vxprev;
+vyend=vyprev;
+tend=tprev;
+        break  -- causes jump out of the "for" loop
     end
     
 end

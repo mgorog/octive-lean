@@ -317,6 +317,29 @@ def registerAllBuiltins (env : Env) : Env :=
         throw (IO.userError "vertcat: inconsistent column counts")
       return #[Value.matrix args.size c (args.foldl (fun a v => a ++ flattenV v) #[])])
   -- ── Math functions ────────────────────────────────────────────────────────
+  |>.registerBuiltin "transpose"  (fun args => do
+      if args.isEmpty then throw (IO.userError "transpose: expected 1 arg")
+      match args[0]!.materialize with
+      | .scalar f => return #[.scalar f]
+      | .matrix r c d =>
+          let mut o : Array Float := Array.replicate (r * c) 0.0
+          for i in [:r] do
+            for j in [:c] do
+              o := o.set! (j * r + i) d[i * c + j]!
+          return #[.matrix c r o]
+      | other => throw (IO.userError s!"transpose: cannot transpose {other.typeName}"))
+  |>.registerBuiltin "htranspose" (fun args => do
+      -- Hermitian transpose; for real-valued matrices this is the same as transpose.
+      if args.isEmpty then throw (IO.userError "htranspose: expected 1 arg")
+      match args[0]!.materialize with
+      | .scalar f => return #[.scalar f]
+      | .matrix r c d =>
+          let mut o : Array Float := Array.replicate (r * c) 0.0
+          for i in [:r] do
+            for j in [:c] do
+              o := o.set! (j * r + i) d[i * c + j]!
+          return #[.matrix c r o]
+      | other => throw (IO.userError s!"htranspose: cannot transpose {other.typeName}"))
   |>.registerBuiltin "abs"   (applyU "abs"   Float.abs)
   |>.registerBuiltin "sqrt"  (applyU "sqrt"  Float.sqrt)
   |>.registerBuiltin "exp"   (applyU "exp"   Float.exp)

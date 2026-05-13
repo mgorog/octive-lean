@@ -9,4 +9,6 @@ octave! {
 function (
   Es = AlgB (N)
   Es
+end
+
 }

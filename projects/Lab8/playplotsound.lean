@@ -10,12 +10,12 @@ function [yn,Fs] = playplotsound(n, y,Fs,Func)
 -- Plays and plots various sounds
 -- if the fourth argument is present the sound is assumed
 -- to be from t1 = y(1) to t2 = y(2) at sampling rate Fs
--- if Func starts with 'f' it is assmumed to be an mfile
+-- if Func starts with "f" it is assmumed to be an mfile
 -- if not, it is assumed to be an expression to be evaluated
 -- Sample Command Lines: >>playplotsound(5)
 --                       >>playplotsound(3,[1,5 ],8000,"sin(440*(2*pi)*t)");
-whitebg 'w'
-if nargin ==3
+whitebg "w"
+if nargin == 3
    yn = y;
    t = (0:(length(y)-1))/Fs;
 end
@@ -28,10 +28,10 @@ yn = sin(sin(t.^4).*sin(sqrt(t+10)).*t).*sin((t+6).^2).*sin(2000*t);
 
 end
 
-if nargin ==4
+if nargin == 4
    t = y(1):1/Fs:y(2);
 
-   if Func(1)=="f"
+   if Func(1) =="f"
       yn = feval(Func,t);
    else
       yn = eval(vectorize(Func),t);
@@ -64,4 +64,6 @@ plot(freqs,power,"r.")
 title("The Power Spectrum")
 xlabel("cycles/second")
 ylabel("Power")
+end
+
 }

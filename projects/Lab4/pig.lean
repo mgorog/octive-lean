@@ -44,16 +44,16 @@ function pigword = pig(english_word)
     vowels = "aeiou";
     
     if any(word(1) == vowels)
-        pig_lower = [word 'way'];
+        pig_lower = [word, "way"];
     else
         -- Find position of first vowel
         vowel_pos = find(ismember(word, vowels), 1, "first");
         if isempty(vowel_pos)
-            pig_lower = [word 'ay'];
+            pig_lower = [word, "ay"];
         else
             consonants = word(1:vowel_pos-1);
-            rest = word(vowel_pos:end);
-            pig_lower = [rest, consonants 'ay'];
+            rest = word(vowel_pos:numel(word));
+            pig_lower = [rest, consonants, "ay"];
         end
     end
     

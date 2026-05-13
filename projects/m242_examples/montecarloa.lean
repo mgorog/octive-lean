@@ -16,7 +16,7 @@ xc=cos(t);
 yc = sin(t);
 plot(xc,yc,"k")
 axis([0,1,0,1])
-hold 
+hold_on()
 
 -- Generate n random points and their squared distances from (0, 0)
 rand("state",100*sum(clock)); --sets the state of rand based on current clock
@@ -35,4 +35,6 @@ plot(points(1,:), points(2,:),"g.",points(1,inside),points(2,inside),"r.")
 title(["A Monte Carlo Estimate of \\pi is  ", num2str(mcpi)])
 xlabel("x-axis")
 ylabel("y-axis")
+end
+
 }
