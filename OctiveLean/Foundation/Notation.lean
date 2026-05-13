@@ -231,16 +231,14 @@ macro_rules
          #eval show IO Unit from do
             let prog : Program := [$stmtTerms,*]
             let core := Compile.compile prog
-            let (state, val) :=
-              Comp.runPure (Eval.eval Initial.primop core Initial.env)
+            let (state, res) :=
+              Comp.run (Eval.eval Initial.primop Eval.defaultFuel core Initial.env)
+                { env := Initial.env }
             for line in state.out do
               IO.println line
-            match state.err with
-            | some e => IO.eprintln s!"error: {e}"
-            | none =>
-                match val with
-                | some v => IO.println s!"=> {v}"
-                | none   => IO.println "=> <no value>"
+            match res with
+            | .error e => IO.eprintln s!"error: {e}"
+            | .ok v    => IO.println s!"=> {v}"
          end)
 
 end OctiveLean.Foundation.Notation

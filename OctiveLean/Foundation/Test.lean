@@ -32,9 +32,8 @@ def example1Core : Core := Compile.compile example1
     initial env binds `+` to a real closure, the same call returns
     `.num 12.0` directly. -/
 def example1Trace : List String × Option Value :=
-  let (state, val) :=
-    Comp.runPure (Eval.eval Initial.primop example1Core Initial.env)
-  (state.out, val)
+  Comp.runPure (Eval.eval Initial.primop Eval.defaultFuel example1Core Initial.env)
+    { env := Initial.env }
 
 #eval (toString (repr example1Core))
 #eval example1Trace.fst

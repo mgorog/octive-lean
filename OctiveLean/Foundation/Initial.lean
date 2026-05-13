@@ -46,36 +46,36 @@ def numBinop (name : String) (f : Float → Float → Float)
   match args with
   | [a, b] =>
       match asNum? a, asNum? b with
-      | some x, some y => Comp.pure (.num (f x y))
-      | _, _ => Comp.perform (.fail s!"{name}: expected two numbers")
-  | _ => Comp.perform (.fail s!"{name}: expected 2 args")
+      | some x, some y => pure (.num (f x y))
+      | _, _ => Comp.fail s!"{name}: expected two numbers"
+  | _ => Comp.fail s!"{name}: expected 2 args"
 
 def numUnop (name : String) (f : Float → Float)
     (args : List Value) : Comp Value :=
   match args with
   | [a] =>
       match asNum? a with
-      | some x => Comp.pure (.num (f x))
-      | none   => Comp.perform (.fail s!"{name}: expected a number")
-  | _ => Comp.perform (.fail s!"{name}: expected 1 arg")
+      | some x => pure (.num (f x))
+      | none   => Comp.fail s!"{name}: expected a number"
+  | _ => Comp.fail s!"{name}: expected 1 arg"
 
 def cmpBinop (name : String) (f : Float → Float → Bool)
     (args : List Value) : Comp Value :=
   match args with
   | [a, b] =>
       match asNum? a, asNum? b with
-      | some x, some y => Comp.pure (.bool (f x y))
-      | _, _ => Comp.perform (.fail s!"{name}: expected two numbers")
-  | _ => Comp.perform (.fail s!"{name}: expected 2 args")
+      | some x, some y => pure (.bool (f x y))
+      | _, _ => Comp.fail s!"{name}: expected two numbers"
+  | _ => Comp.fail s!"{name}: expected 2 args"
 
 def boolBinop (name : String) (f : Bool → Bool → Bool)
     (args : List Value) : Comp Value :=
   match args with
   | [a, b] =>
       match asBool? a, asBool? b with
-      | some x, some y => Comp.pure (.bool (f x y))
-      | _, _ => Comp.perform (.fail s!"{name}: expected two bools")
-  | _ => Comp.perform (.fail s!"{name}: expected 2 args")
+      | some x, some y => pure (.bool (f x y))
+      | _, _ => Comp.fail s!"{name}: expected two bools"
+  | _ => Comp.fail s!"{name}: expected 2 args"
 
 /-- The dispatch table. Keep alphabetical-ish within each section. -/
 def primop : String → List Value → Comp Value
@@ -104,9 +104,9 @@ def primop : String → List Value → Comp Value
   | "!",  args =>
       match args with
       | [a] => match asBool? a with
-        | some b => Comp.pure (.bool !b)
-        | none   => Comp.perform (.fail "!: expected bool")
-      | _ => Comp.perform (.fail "!: expected 1 arg")
+        | some b => pure (.bool !b)
+        | none   => Comp.fail "!: expected bool"
+      | _ => Comp.fail "!: expected 1 arg"
   -- Transcendentals
   | "sin",  args => numUnop "sin"  Float.sin  args
   | "cos",  args => numUnop "cos"  Float.cos  args
@@ -119,37 +119,37 @@ def primop : String → List Value → Comp Value
   | "disp", args =>
       match args with
       | [v] => do
-          let _ ← Comp.perform (.print (toString v))
-          Comp.pure .unit
-      | _ => Comp.perform (.fail "disp: expected 1 arg")
+          let _ ← Comp.print (toString v)
+          pure .unit
+      | _ => Comp.fail "disp: expected 1 arg"
   | "echo", args =>
       match args with
       | [v] => do
-          let _ ← Comp.perform (.print s!"ans = {v}")
-          Comp.pure v
-      | _ => Comp.perform (.fail "echo: expected 1 arg")
+          let _ ← Comp.print s!"ans = {v}"
+          pure v
+      | _ => Comp.fail "echo: expected 1 arg"
   | "print", args =>
       do
-        let _ ← Comp.perform (.print (String.intercalate " " (args.map toString)))
-        Comp.pure .unit
+        let _ ← Comp.print (String.intercalate " " (args.map toString))
+        pure .unit
   -- Statement-level utilities. `bind` is the env-mutating side of
   -- assignment; `noop` is the unit-valued no-op the compiler uses
   -- for empty `else` / empty switch fallthrough.
   | "bind", args =>
       match args with
       | [.str name, v] => do
-          let _ ← Comp.perform (.writeVar name v)
-          Comp.pure v
-      | _ => Comp.perform (.fail "bind: expected (str, value)")
-  | "noop", _   => Comp.pure .unit
-  | "true",  _  => Comp.pure (.bool true)
-  | "false", _  => Comp.pure (.bool false)
+          let _ ← Comp.writeVar name v
+          pure v
+      | _ => Comp.fail "bind: expected (str, value)"
+  | "noop", _   => pure .unit
+  | "true",  _  => pure (.bool true)
+  | "false", _  => pure (.bool false)
   | "fail",  args =>
       match args with
-      | [.str msg] => Comp.perform (.fail msg)
-      | _          => Comp.perform (.fail "fail: expected (str message)")
+      | [.str msg] => Comp.fail msg
+      | _          => Comp.fail "fail: expected (str message)"
   -- Unknown primop
-  | name, _ => Comp.perform (.fail s!"unknown primop: {name}")
+  | name, _ => Comp.fail s!"unknown primop: {name}"
 
 /-- Initial environment: bind every primop name to a `.builtin` value
     so name-lookup in `eval` finds it. The list mirrors `primop`. -/

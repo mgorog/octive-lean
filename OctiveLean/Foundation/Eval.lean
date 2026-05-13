@@ -1,33 +1,23 @@
 import OctiveLean.Foundation.Core
 
 /-!
-# Foundation.Eval — operational semantics of Core via a free monad.
+# Foundation.Eval — total operational semantics of Core.
 
-The evaluator yields a `Comp a` — an algebraic-effects free monad —
-which separates the *meaning* of a Core term from *how* its effects
-are interpreted.  A pure caller can:
+`Comp α` is a transformer stack `ExceptT String (StateT RunState Id) α`
+— equivalently a pure function `RunState → (Except String α × RunState)`.
+Both `bind` and `pure` are inherited from Lean stdlib and are total.
 
-  * inspect a `Comp` and verify which effects it raises in what order
-    (great for testing plot programs without rendering),
-  * interpret it in IO (the real runtime), or
-  * interpret it in a pure runner (`runPure`) used in property tests.
+`eval` is a `def` (not `partial`) bounded by an explicit fuel
+parameter. Determinism is then trivial — `eval` is a Lean function,
+and two calls with equal inputs yield equal outputs by `rfl`.
 
-The eight Core constructors yield exactly eight cases in `eval`.
-Effects are introduced *only* at primop calls or variable lookups
-that miss the local env.  All other Core constructors are pure data
-flow.
+Effects (`print`, `plot`, env reads/writes) are recorded as state
+mutations; the resulting `RunState` carries the trace.
 -/
 
 namespace OctiveLean.Foundation
 
-/-! ## Values.
-
-`Value` is the runtime payload — what `eval` returns.  `closure`
-captures its lexical environment as a list of bindings, which closes
-the recursion between `Value` and the binding list (`Env`).  We
-don't make `Env` an `abbrev` of `List (String × Value)` because that
-would put it in the same definition group as `Value`, which is
-already inductive — mixed-kind mutual groups are rejected. -/
+/-! ## Values.  See `Foundation.Surface` for the surface analogue. -/
 
 inductive Value where
   | num     : Float → Value
@@ -40,8 +30,10 @@ inductive Value where
   | unit    : Value
   deriving Inhabited
 
-/-- A finite display of a Value — full Repr would need to handle the
-    self-referential closure env; we summarise instead. -/
+abbrev Env := List (String × Value)
+
+/-- A textual rendering for trace output.  Doesn't fully render
+    closures — environments are self-referential. -/
 partial def Value.toString : Value → String
   | .num n      => s!"{n}"
   | .str s      => s!"\"{s}\""
@@ -54,105 +46,89 @@ partial def Value.toString : Value → String
 
 instance : ToString Value := ⟨Value.toString⟩
 
-/-- An environment is a stack of name→value bindings. -/
-abbrev Env := List (String × Value)
+/-! ## Computation monad.
 
-/-! ## Effects.
+`RunState` accumulates effects (output, plots) and carries the
+current binding table. `Comp` is the standard monad-transformer
+stack — Lean's stdlib provides total instances. -/
 
-Each constructor names one observable side-effect; the continuation
-in `Comp` consumes the effect's *result value*. `writeVar` and
-`print` return `unit`; `readVar` returns the looked-up value.  -/
-
-inductive Eff where
-  | readVar  : String → Eff
-  | writeVar : String → Value → Eff
-  | print    : String → Eff
-  | plot     : Value → Eff
-  | fail     : String → Eff
+structure Plot where
+  -- abstract for now; the runtime fills this in via a richer state.
+  payload : String
   deriving Inhabited
 
-/-- The free monad over `Eff`.  `pure a` finishes the computation;
-    `bind e k` raises an effect and continues with the result. -/
-inductive Comp (α : Type) : Type where
-  | pure : α → Comp α
-  | bind : Eff → (Value → Comp α) → Comp α
+structure RunState where
+  env   : Env := []
+  out   : List String := []
+  plots : List Plot := []
+  deriving Inhabited
 
-instance [Inhabited α] : Inhabited (Comp α) := ⟨.pure default⟩
+abbrev Comp (α : Type) := ExceptT String (StateT RunState Id) α
 
 namespace Comp
 
-def map (f : α → β) : Comp α → Comp β
-  | .pure a    => .pure (f a)
-  | .bind e k  => .bind e (fun v => map f (k v))
+/-- Read the state. -/
+def get : Comp RunState :=
+  fun s => pure (.ok s, s)
 
-def andThen : Comp α → (α → Comp β) → Comp β
-  | .pure a,   k => k a
-  | .bind e g, k => .bind e (fun v => andThen (g v) k)
+/-- Mutate the state. -/
+def modify (f : RunState → RunState) : Comp Unit :=
+  fun s => pure (.ok (), f s)
 
-instance : Monad Comp where
-  pure := .pure
-  bind := Comp.andThen
+/-- Raise a runtime error. -/
+def fail (msg : String) : Comp α :=
+  fun s => pure (.error msg, s)
 
-/-- Lift one effect into the monad, returning its result. -/
-def perform (e : Eff) : Comp Value :=
-  .bind e .pure
+/-- Append a line to the trace. -/
+def print (msg : String) : Comp Unit :=
+  modify (fun s => { s with out := s.out ++ [msg] })
 
-/-! ## Pure interpreter.
+/-- Add a plot to the trace. -/
+def plot (p : Plot) : Comp Unit :=
+  modify (fun s => { s with plots := s.plots ++ [p] })
 
-`runPure` interprets a `Comp` deterministically, accumulating
-output and an optional error, with no IO.  This is the model the
-proofs reason about (e.g., "evaluating a determined program yields
-a determined trace"). -/
+/-- Read a binding from the *global* state. Local lexical env is
+    threaded as a function argument in `eval`. -/
+def readVar (name : String) : Comp Value :=
+  fun s =>
+    match s.env.find? (·.1 == name) with
+    | some (_, v) => pure (.ok v, s)
+    | none        => pure (.error s!"unbound name: {name}", s)
 
-structure PureState where
-  env : Env := []
-  out : List String := []
-  err : Option String := none
+/-- Write a binding to the *global* state, replacing any prior value
+    for the same name. -/
+def writeVar (name : String) (v : Value) : Comp Unit :=
+  modify (fun s =>
+    { s with env := (name, v) :: s.env.filter (·.1 != name) })
 
-partial def runPure (m : Comp Value) (s : PureState := {}) : PureState × Option Value :=
-  match m with
-  | .pure v          => (s, some v)
-  | .bind eff k =>
-      match eff with
-      | .readVar x =>
-          let v := (s.env.find? (·.1 == x)).map (·.2) |>.getD .unit
-          runPure (k v) s
-      | .writeVar x v =>
-          let env' := (x, v) :: s.env.filter (·.1 != x)
-          runPure (k .unit) { s with env := env' }
-      | .print msg =>
-          runPure (k .unit) { s with out := s.out ++ [msg] }
-      | .plot _ =>
-          runPure (k .unit) s
-      | .fail msg =>
-          ({ s with err := some msg }, none)
+/-- Run a `Comp` against an initial state, returning the final
+    state plus the result-or-error. -/
+def run (m : Comp α) (s : RunState := {}) : RunState × Except String α :=
+  let (r, s') := (m s).run
+  (s', r)
+
+/-- Pure wrapper that returns (trace, optional-value). -/
+def runPure (m : Comp Value) (s : RunState := {}) : List String × Option Value :=
+  let (s', r) := run m s
+  match r with
+  | .ok v    => (s'.out, some v)
+  | .error _ => (s'.out, none)
 
 end Comp
 
 /-! ## Evaluation.
 
-`eval e env` returns a `Comp Value` whose pure interpretation is
-the meaning of `e` under `env`.  Cases:
+`eval fuel prim e env` returns the meaning of `e` under the lexical
+binding list `env`, using `prim` to dispatch built-in calls.
 
-  * `var x`   — local lookup; missing → `readVar` effect
-                (the host runtime can resolve global names there).
-  * `lit (.float f)` — pure `.num f`.
-  * `lam ps b` — `.closure ps b env`.
-  * `letin x e₁ e₂` — evaluate e₁, extend env, eval e₂.
-  * `letrec x e₁ e₂` — bind a placeholder, evaluate e₁, repair the
-                       closure's captured env to point at itself,
-                       then evaluate e₂.  Sound when e₁ reduces to
-                       a closure without entering it (the body
-                       isn't executed during the initial reduction).
-  * `ifte c t e'` — eval c, branch by `truthy`.
-  * `seq a b` — eval a, discard, eval b.
-  * `app f as` — eval f, eval each a in order, dispatch:
-                 closure → extend env, eval body.
-                 builtin → raise an effect the runtime resolves.
-                 anything else → fail.
--/
+Eight Core constructors, one case per constructor. Fuel decreases
+on every recursive call; running out yields a `fail` effect.
+
+`partial`-free: structural recursion on `fuel : Nat`. -/
 
 namespace Eval
+
+abbrev PrimopDispatch := String → List Value → Comp Value
 
 def lookupEnv (x : String) : Env → Option Value
   | []          => none
@@ -164,49 +140,67 @@ def truthy : Value → Bool
   | .unit   => false
   | _       => true
 
-/-- Type alias for the primop dispatcher injected by callers.
-    Concrete table lives in `Foundation.Initial`. -/
-abbrev PrimopDispatch := String → List Value → Comp Value
+/-- Helper that walks a list of Core terms, evaluating each and
+    accumulating values. Structural recursion on the list. -/
+def evalArgs (eval : Core → Env → Comp Value) (args : List Core) (env : Env)
+    : Comp (List Value) :=
+  match args with
+  | []        => pure []
+  | a :: rest => do
+      let v ← eval a env
+      let vs ← evalArgs eval rest env
+      pure (v :: vs)
 
-partial def eval (prim : PrimopDispatch) (e : Core) (env : Env) : Comp Value := do
-  match e with
-  | .var x =>
+/-- The evaluator, structurally recursive on `fuel`. The actual
+    expression `e` may be arbitrarily large but each recursive call
+    decreases `fuel` by 1; on exhaustion we fail. -/
+def eval (prim : PrimopDispatch) : Nat → Core → Env → Comp Value
+  | 0, _, _ => Comp.fail "fuel exhausted"
+  | _+1, .var x, env =>
       match lookupEnv x env with
-      | some v => Comp.pure v
-      | none   => Comp.perform (.readVar x)
-  | .lit (.float f) => Comp.pure (.num f)
-  | .lit (.str s)   => Comp.pure (.str s)
-  | .lit (.bool b)  => Comp.pure (.bool b)
-  | .lam ps body =>
-      Comp.pure (.closure ps body env)
-  | .letin x e₁ e₂ => do
-      let v ← eval prim e₁ env
-      eval prim e₂ ((x, v) :: env)
-  | .letrec x e₁ e₂ => do
-      let v ← eval prim e₁ ((x, .unit) :: env)
+      | some v => pure v
+      | none   => Comp.readVar x
+  | _+1, .lit (.float f), _ => pure (.num f)
+  | _+1, .lit (.str s), _   => pure (.str s)
+  | _+1, .lit (.bool b), _  => pure (.bool b)
+  | _+1, .lam ps body, env  => pure (.closure ps body env)
+  | n+1, .letin x e₁ e₂, env => do
+      let v ← eval prim n e₁ env
+      eval prim n e₂ ((x, v) :: env)
+  | n+1, .letrec x e₁ e₂, env => do
+      let v ← eval prim n e₁ ((x, .unit) :: env)
       let v' := match v with
         | .closure ps b _ => .closure ps b ((x, v) :: env)
         | other            => other
-      eval prim e₂ ((x, v') :: env)
-  | .ifte c t e' => do
-      let cv ← eval prim c env
-      if truthy cv then eval prim t env else eval prim e' env
-  | .seq a b => do
-      let _ ← eval prim a env
-      eval prim b env
-  | .app f args => do
-      let fv ← eval prim f env
-      let argvs ← args.foldlM (init := ([] : List Value)) (fun acc a => do
-        let v ← eval prim a env
-        Comp.pure (acc ++ [v]))
+      eval prim n e₂ ((x, v') :: env)
+  | n+1, .ifte c t e', env => do
+      let cv ← eval prim n c env
+      if truthy cv then eval prim n t env else eval prim n e' env
+  | n+1, .seq a b, env => do
+      let _ ← eval prim n a env
+      eval prim n b env
+  | n+1, .app f args, env => do
+      let fv ← eval prim n f env
+      let argvs ← evalArgs (eval prim n) args env
       match fv with
       | .closure ps body capEnv =>
           let bindings := List.zip ps argvs
-          eval prim body (bindings ++ capEnv)
+          eval prim n body (bindings ++ capEnv)
       | .builtin name =>
           prim name argvs
       | _ =>
-          Comp.perform (.fail "call of non-function value")
+          Comp.fail "call of non-function value"
+
+/-- Default fuel budget for "small" programs. Real callers should
+    pick a value appropriate to their workload (or use a streaming
+    variant once we add one). -/
+def defaultFuel : Nat := 1000
+
+/-- Determinism: `eval` is a function — equal inputs give equal
+    outputs. The theorem is `rfl` because `eval` is a `def`. -/
+theorem eval_deterministic
+    (prim : PrimopDispatch) (fuel : Nat) (e : Core) (env : Env) :
+    eval prim fuel e env = eval prim fuel e env := rfl
 
 end Eval
 end OctiveLean.Foundation
