@@ -19,15 +19,18 @@ if xc>pi/2 && xc<3*pi/2
 else
     sign = 1;
     if xc >= 3*pi/2
- xc=2*pi-xc;
+ xc=2*pi-xc
+
 end
 end
 -- special cases
 if xc<eps
- y = sign;
+ y = sign
+
  end
 if pi/2 - xc < eps
- y = 0;
+ y = 0
+
  end
 -- Initialize loop quantities
 y=1;

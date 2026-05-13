@@ -23,7 +23,7 @@ disp(" ");
 disp("1. TESTING PIG LATIN FUNCTION (pig.m)");
 test_words = {"hello", "Bruce", "apple", "Octave", "rhythm", "A", "why", ""};
 for i = 1:length(test_words)
-    w = test_words{i};
+    w = cellget(test_words, i);
     p = pig(w);
     if isempty(w)
         disp(["  '", w, "'  (empty)  -->  '", p, "'"]);

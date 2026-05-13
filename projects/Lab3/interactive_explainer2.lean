@@ -55,7 +55,7 @@ disp("\\n === Required Function: production_cost =======================");
 disp("Uses matrix multiplication with transpose (A') because rows=products, columns=materials");
 code_func = { "function dataout = production_cost(datain)", "    dataout = datain;", "    A = datain(1:3,1:3);   % product rows x material columns", "    P = datain(1:3,4);     % production vector", "    C = datain(4,1:3);     % cost row vector", "    total = C * (A' * P);  % Correct: transpose to sum over products per material", "    dataout(4,4) = total;", "end" };
 for k = 1:length(code_func)
-    disp(["   ", code_func{k}]);
+    disp(["   ", cellget(code_func, k)]);
 end
 
 input("\\nPress Enter to run the function...");
@@ -75,15 +75,21 @@ disp("Note: Matrix methods use A' (transpose) for correct summation.");
 
 disp("\\nMethod 1: Direct matrix multiplication C * (A' * P)");
 code1 = { "total1 = C * (A' * P);" };
-for k = 1:length(code1); disp(["   ", code1{k}]); end
+for k = 1:length(code1)
+ disp(["   ", cellget(code1, k)])
+ end
 
 disp("\\nMethod 2: Intermediate material totals (A'*P first, then C*that)");
 code2 = { "material_totals = A' * P;", "total2 = C * material_totals;" };
-for k = 1:length(code2); disp(["   ", code2{k}]); end
+for k = 1:length(code2)
+ disp(["   ", cellget(code2, k)])
+ end
 
 disp("\\nMethod 3: Pure scalar double loops (explicit summations)");
 code3 = { "total3 = 0;", "for prod = 1:3", "    for mat = 1:3", "        total3 = total3 + A(prod,mat) * C(mat) * P(prod);", "    end", "end" };
-for k = 1:length(code3); disp(["   ", code3{k}]); end
+for k = 1:length(code3)
+ disp(["   ", cellget(code3, k)])
+ end
 
 input("\\nPress Enter to execute all three methods...");
 
@@ -150,7 +156,7 @@ function dataout = production_cost(datain)
     A = datain(1:3,1:3);
     P = datain(1:3,4);
     C = datain(4,1:3);
-    total = C * (htranspose(A) * P);   % Corrected with transpose
+    total = C * (htranspose(A) * P);   -- Corrected with transpose
     dataout(4,4) = total;
 end
 }

@@ -317,6 +317,20 @@ def registerAllBuiltins (env : Env) : Env :=
         throw (IO.userError "vertcat: inconsistent column counts")
       return #[Value.matrix args.size c (args.foldl (fun a v => a ++ flattenV v) #[])])
   -- ── Math functions ────────────────────────────────────────────────────────
+  |>.registerBuiltin "cellget" (fun args => do
+      if args.size < 2 then throw (IO.userError "cellget: expected at least 2 args (cell, idx)")
+      let cv := args[0]!
+      let idx ← match args[1]! with
+        | .scalar f => pure f.toUInt64.toNat
+        | .integer iv => pure iv.toFloat.toUInt64.toNat
+        | _ => throw (IO.userError "cellget: expected numeric index")
+      match cv with
+      | .cell _ _ data =>
+          if idx > 0 && idx <= data.size then
+            return #[data[idx - 1]!]
+          else
+            throw (IO.userError s!"cellget: index {idx} out of bounds (cell has {data.size} elements)")
+      | _ => return #[cv])
   |>.registerBuiltin "transpose"  (fun args => do
       if args.isEmpty then throw (IO.userError "transpose: expected 1 arg")
       match args[0]!.materialize with

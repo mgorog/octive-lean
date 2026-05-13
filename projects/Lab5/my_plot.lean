@@ -233,7 +233,7 @@ octave! {
 
 function h = plot (varargin)
 
-  [hax, varargin, nargs] = __plt_get_axis_arg__ ("plot", varargin{:});
+  [hax, varargin, nargs] = __plt_get_axis_arg__ ("plot", cellget(varargin, :));
 
   if (nargs < 1)
     print_usage ();
@@ -245,7 +245,7 @@ function h = plot (varargin)
   endif
   unwind_protect
     hax = newplot (hax);
-    htmp = __plt__ ("plot", hax, varargin{:});
+    htmp = __plt__ ("plot", hax, cellget(varargin, :));
 
     if (! ishold ())
       set (hax, "box", "on");

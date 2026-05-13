@@ -6263,7 +6263,7 @@ end
                     if ADIST == LRangeWPN2 || ADIST < LRangeWPN2 && ADIST>MRangeWPN2
                         RANGES=3;
                     end
-                    ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;;
+                    ATTCHECK=Gunnery+ESPEEDPEN-PSPEEDPEN+RANGES;
                     ATTROLL=MULTIDICE(6,2);
                     
                     if ATTROLL >= ATTCHECK

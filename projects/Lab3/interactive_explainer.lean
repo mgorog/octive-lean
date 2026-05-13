@@ -47,7 +47,9 @@ disp("- Leave variable \"Initials\" in base workspace");
 
 disp("\\nCode that will run:");
 code1 = { "full_name = input('Enter your full name: ', 's');", "full_name = strtrim(full_name);", "words = strsplit(full_name);", "if isempty(words)", "    Initials = '';", "else", "    Initials = upper(words{1}(1));", "    for i = 2:length(words)", "        word = words{i};", "        if !isempty(word) && length(word) >= 1 && isletter(word(1))", "            Initials = [Initials '.' upper(word(1))];", "        end", "    end", "end", "disp(['Your capitalized initials: ' Initials]);", "assignin('base', 'Initials', Initials);  % Make it visible in base workspace" };
-for k = 1:length(code1); disp(["   ", code1{k}]); end
+for k = 1:length(code1)
+ disp(["   ", cellget(code1, k)])
+ end
 
 input("\\nPress Enter to run Problem 1...");
 
@@ -57,9 +59,9 @@ words = strsplit(full_name);
 if isempty(words)
     Initials = "";
 else
-    Initials = upper(words{1}(1));
+    Initials = upper(cellget(words, 1)(1));
     for i = 2:length(words)
-        word = words{i};
+        word = cellget(words, i);
         if !isempty(word) && length(word) >= 1 && isletter(word(1))
             Initials = [Initials, ".", upper(word(1))];
         end
@@ -82,7 +84,9 @@ disp("- Ready for sentence translation");
 
 disp("\\nExact subfunction source (defined below):");
 code2 = { "function pigword = pig_latin(english_word)", "    if isempty(english_word)", "        pigword = ''; return;", "    end", "    was_capitalized = isletter(english_word(1)) && isupper(english_word(1));", "    word = lower(english_word);", "    vowels = 'aeiou';", "    if any(word(1) == vowels)", "        pig_lower = [word 'way'];", "    else", "        vowel_pos = find(ismember(word, vowels), 1, 'first');", "        if isempty(vowel_pos)", "            pig_lower = [word 'ay'];", "        else", "            consonants = word(1:vowel_pos-1);", "            rest = word(vowel_pos:end);", "            pig_lower = [rest consonants 'ay'];", "        end", "    end", "    pigword = pig_lower;", "    if was_capitalized && !isempty(pigword)", "        pigword(1) = upper(pigword(1));", "    end", "end" };
-for k = 1:length(code2); disp(["   ", code2{k}]); end
+for k = 1:length(code2)
+ disp(["   ", cellget(code2, k)])
+ end
 
 input("\\nPress Enter to test the function...");
 
@@ -115,7 +119,9 @@ disp("- Cap width at 10");
 
 disp("\\nExact subfunction source (defined below):");
 code3 = { "function print_rectangle(length, width)", "    if width > 10", "        disp('Width exceeds 10; capping at 10.');", "        width = 10;", "    end", "    if length < 1 || width < 1", "        disp('Dimensions must be positive integers.'); return;", "    end", "    border = '*'; interior = '.';", "    for row = 1:length", "        if row == 1 || row == length", "            line = repmat(border, 1, width);", "        else", "            if width <= 2", "                line = repmat(border, 1, width);", "            else", "                line = [border repmat(interior, 1, width-2) border];", "            end", "        end", "        disp(line);", "    end", "end" };
-for k = 1:length(code3); disp(["   ", code3{k}]); end
+for k = 1:length(code3)
+ disp(["   ", cellget(code3, k)])
+ end
 
 input("\\nPress Enter to draw a rectangle...");
 

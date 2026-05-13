@@ -54,16 +54,20 @@ end
 
 -- 1-var stats
 if nargout >= 6
- xbar = mean(x);
+ xbar = mean(x)
+
 end
 if nargout >= 7
- ybar = mean(yx);
+ ybar = mean(yx)
+
 end
 if nargout >= 8
- stdx=std(x);
+ stdx=std(x)
+
 end
 if nargout >= 9
- stdy=std(yx);
+ stdy=std(yx)
+
 end
 -- Correlation
 if nargout >= 3
@@ -73,7 +77,8 @@ if nargout >= 3
     r=R(1,2);
 end
 if nargout >= 4
-rsq=r^2;
+rsq=r^2
+
  end
 
 -- Polynomial Regression

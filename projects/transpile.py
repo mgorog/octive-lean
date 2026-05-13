@@ -55,7 +55,13 @@ def rewrite_comments(src: str) -> str:
                 i += 2
                 continue
             if not in_double and c == "'":
-                in_single = not in_single
+                # MATLAB rule: `'` is transpose if tight-bound to an
+                # identifier-end / `)` / `]`. Otherwise it opens a string.
+                prev = line[i - 1] if i > 0 else "\n"
+                if prev.isalnum() or prev in "_)]" if not in_single else False:
+                    pass  # transpose; don't toggle string state
+                else:
+                    in_single = not in_single
             elif not in_single and c == '"':
                 in_double = not in_double
             elif not in_single and not in_double and (c == "%" or c == "#"):
@@ -263,6 +269,94 @@ def rewrite_lean_keyword_idents(src: str) -> str:
     return "".join(out)
 
 
+def rewrite_cell_index(src: str) -> str:
+    """`M{i}` is MATLAB's cell-content access. The DSL can't add postfix
+    `{…}` (the macro-pattern parser rejects `{` after `$expr`), so detect
+    `<name>{args}` (i.e. `{` tightly after an identifier-chain) and rewrite
+    to a `cellget(name, args)` call. Bare `{…}` standalone stays as a cell
+    literal."""
+    out: list[str] = []
+    i = 0
+    n = len(src)
+    in_string = False
+    str_char: str | None = None
+    while i < n:
+        c = src[i]
+        if in_string:
+            out.append(c)
+            if c == "\\" and i + 1 < n:
+                out.append(src[i + 1])
+                i += 2
+                continue
+            if c == str_char:
+                in_string = False
+                str_char = None
+            i += 1
+            continue
+        if c == '"' or c == "'":
+            in_string = True
+            str_char = c
+            out.append(c)
+            i += 1
+            continue
+        if c == "-" and i + 1 < n and src[i + 1] == "-":
+            while i < n and src[i] != "\n":
+                out.append(src[i])
+                i += 1
+            continue
+        if c == "{":
+            # Cell-content access only when `{` is tight to an identifier-end
+            # or `)` / `]` (continuation of a postfix chain).
+            tight = (out and (out[-1].isalnum() or out[-1] in "_)]"))
+            if not tight:
+                out.append(c)
+                i += 1
+                continue
+            # Walk back through `out` to find the chain start.
+            start = len(out)
+            while start > 0:
+                ch = out[start - 1]
+                if ch.isalnum() or ch in "_.":
+                    start -= 1
+                elif ch == ")" or ch == "]":
+                    depth = 1
+                    start -= 1
+                    while start > 0 and depth > 0:
+                        start -= 1
+                        if out[start] in ")]":
+                            depth += 1
+                        elif out[start] in "([":
+                            depth -= 1
+                else:
+                    break
+            chain = "".join(out[start:])
+            # Consume args until matching `}`.
+            depth = 1
+            j = i + 1
+            args_buf: list[str] = []
+            while j < n and depth > 0:
+                cc = src[j]
+                if cc == "{":
+                    depth += 1
+                    args_buf.append(cc)
+                elif cc == "}":
+                    depth -= 1
+                    if depth == 0:
+                        break
+                    args_buf.append(cc)
+                else:
+                    args_buf.append(cc)
+                j += 1
+            args_str = "".join(args_buf)
+            replacement = f"cellget({chain}, {args_str})" if args_str.strip() else f"cellget({chain})"
+            out = out[:start] + list(replacement)
+            i = j + 1
+            continue
+        out.append(c)
+        i += 1
+    return "".join(out)
+
+
 def rewrite_end_in_index(src: str) -> str:
     """`A(…:end)` / `A(end, …)` / etc.  `end` inside an indexing context is
     MATLAB's "last index of this axis". Since the DSL can't accept `end` as
@@ -460,9 +554,10 @@ def split_toplevel_commas(src: str) -> str:
 
 
 def _split_inline_blocks(src: str) -> str:
-    """Replace `,`s that act as statement separators inside a single-line
-    `if … , … , end` (or for/while). A paren-depth scan keeps function-call
-    commas safe."""
+    """Replace `,`s and `;`s that act as statement separators inside a
+    single-line `if … , … , end` (or for/while). A paren-depth scan keeps
+    function-call commas safe. Comments and strings are skipped so a stray
+    `'` inside `-- transpose example A'` doesn't open a phantom string."""
     out: list[str] = []
     i = 0
     n = len(src)
@@ -480,6 +575,12 @@ def _split_inline_blocks(src: str) -> str:
                 in_string = False
                 str_char = None
             i += 1
+            continue
+        # Skip line comments so quotes inside them don't toggle string state.
+        if c == "-" and i + 1 < n and src[i + 1] == "-":
+            while i < n and src[i] != "\n":
+                out.append(src[i])
+                i += 1
             continue
         if c == '"' or c == "'":
             in_string = True
@@ -511,7 +612,10 @@ def _split_inline_blocks(src: str) -> str:
                     elif cc == ")" or cc == "]" or cc == "}":
                         depth = max(0, depth - 1)
                         rebuilt.append(cc)
-                    elif cc == "," and depth == 0:
+                    elif (cc == "," or cc == ";") and depth == 0:
+                        # Both `,` and `;` are statement separators inside an
+                        # inline block; turn them into newlines so each piece
+                        # parses as its own octStmt.
                         rebuilt.append("\n")
                     else:
                         rebuilt.append(cc)
@@ -551,9 +655,10 @@ def rewrite_operators(src: str) -> str:
     # (handled above) or when `~` is inside a string (we don't bother
     # being precise; the string-rewrite happens later and won't see `~`).
     src = re.sub(r"~(\s*)([A-Za-z_(])", r"!\1\2", src)
-    # Strip empty separators like `;,` and `,;`.
+    # Strip empty separators like `;,`, `,;`, and double `;;`.
     src = re.sub(r";\s*,", ";", src)
     src = re.sub(r",\s*;", ";", src)
+    src = re.sub(r";\s*;+", ";", src)
     # Add a `;` to bare `global`/`clear` declarations so the ident+ rule
     # doesn't keep absorbing identifiers from the next line. Match end-of-line
     # OR a trailing `--…` comment.
@@ -731,13 +836,14 @@ def to_lean(src: str, name: str) -> str:
                     rewrite_transpose(
                         rewrite_backslash(
                             rewrite_lean_keyword_idents(
+                                rewrite_cell_index(
                                 rewrite_end_in_index(
                                 rewrite_command_syntax(
                                     rewrite_strings(
                                         join_line_continuations(
                                             rewrite_comments(src.rstrip())
                                         )
-                                    ))
+                                    )))
                                 )
                             )
                         )
