@@ -57,14 +57,23 @@ For now `octs` is `native_decide` with a richer message; the
 infrastructure is here so we can swap in a real symbolic-evaluation
 tactic later without rewriting client proofs. -/
 
-open Lean Elab Tactic in
-elab "octs" : tactic => do
-  -- Try the cheap path first.
-  try
-    Lean.Elab.Tactic.evalTactic (← `(tactic| native_decide))
-  catch _ =>
-    -- Fall through to a more informative failure.
-    throwError "octs: could not decide the goal — check program/property"
+/-- `octs` — close a goal about an Octave program / Core term. Tries
+    several strategies in order, so it works for both concrete
+    (`native_decide`) and parametric (`rfl`/`simp` over the
+    semantic theorems) goals. -/
+macro "octs" : tactic => `(tactic|
+  first
+    | rfl
+    | (simp only [evalsTo, bindsAfter, leavesBound, runProgramOk]
+       <;> native_decide)
+    | native_decide)
+
+/-- `octstep` — *don't* close the goal; just unfold one level so the
+    user can see what the program reduces to.  Useful for stepping
+    through a proof in the InfoView. -/
+macro "octstep" : tactic => `(tactic|
+  simp only [evalsTo, bindsAfter, leavesBound, runProgramOk,
+             Logic.runProgram, Comp.run])
 
 /-! ## Inline-assertion macro: `octassert! { … ; assert <Lean expr> }`. -/
 
