@@ -1,4 +1,7 @@
-import OctiveLean.Foundation
+import OctiveLean.Foundation.Core
+import OctiveLean.Foundation.Surface
+import OctiveLean.Foundation.Compile
+import OctiveLean.Foundation.Eval
 import OctiveLean.Foundation.Initial
 import OctiveLean.DSL
 
@@ -222,6 +225,19 @@ plotting, no widgets — that machinery layers on later by replacing
 `Initial.primop` and `Initial.env` with richer versions. -/
 
 syntax (name := octFRun) "octF!" "{" octStmt* "}" : command
+
+/-- `octProg! name { … }` defines `name : Program` from Octave source.
+    No evaluation happens — the program is just a Lean value, ready to
+    have theorems proven about it. -/
+syntax (name := octProgDef) "octProg!" ident "{" octStmt* "}" : command
+
+macro_rules
+  | `(command| octProg! $name:ident { $stmts:octStmt* }) => do
+      let stmtTerms ← stmts.mapM convStmt
+      `(section
+         open OctiveLean.Foundation
+         def $name : Program := [$stmtTerms,*]
+         end)
 
 macro_rules
   | `(command| octF! { $stmts:octStmt* }) => do

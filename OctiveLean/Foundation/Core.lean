@@ -58,7 +58,7 @@ inductive Core where
   /-- Sequential composition. Evaluates `e₁`, discards its value,
       then evaluates `e₂`. -/
   | seq    : Core → Core → Core
-  deriving Repr, Inhabited
+  deriving Repr, Inhabited, BEq
 
 /-! Capture-avoiding substitution would go here, but Core's
     semantics is environment-based (see `Foundation.Eval`); we never

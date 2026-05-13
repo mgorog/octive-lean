@@ -28,7 +28,7 @@ inductive Value where
   | closure : List String → Core → List (String × Value) → Value
   | builtin : String → Value
   | unit    : Value
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 abbrev Env := List (String × Value)
 
