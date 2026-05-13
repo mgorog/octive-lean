@@ -27,12 +27,13 @@ Design rules:
 
 namespace OctiveLean.Foundation
 
-/-- Floats are our scalar literal type. Strings, bools, and integers
-    live in `Value` (the evaluation result), not in `Core` literals —
-    a literal `Core` term is always a float, and other shapes arise
-    only by applying primops (e.g. `bool true`, `str "hello"`). -/
+/-- Core literals: floats, strings, booleans. The unit literal is
+    written as a zero-argument call to the env-bound `noop` primop —
+    we don't need a Core constructor for it. -/
 inductive Lit where
   | float : Float → Lit
+  | str   : String → Lit
+  | bool  : Bool → Lit
   deriving Repr, BEq
 
 /-- The eight-constructor Core. -/

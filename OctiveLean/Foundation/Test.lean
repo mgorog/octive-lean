@@ -1,4 +1,5 @@
 import OctiveLean.Foundation
+import OctiveLean.Foundation.Initial
 
 /-!
 # Foundation.Test — round-trip Surface → Core → eval.
@@ -31,7 +32,8 @@ def example1Core : Core := Compile.compile example1
     initial env binds `+` to a real closure, the same call returns
     `.num 12.0` directly. -/
 def example1Trace : List String × Option Value :=
-  let (state, val) := Comp.runPure (Eval.eval example1Core [])
+  let (state, val) :=
+    Comp.runPure (Eval.eval Initial.primop example1Core Initial.env)
   (state.out, val)
 
 #eval (toString (repr example1Core))

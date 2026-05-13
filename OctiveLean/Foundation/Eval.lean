@@ -164,42 +164,47 @@ def truthy : Value → Bool
   | .unit   => false
   | _       => true
 
-partial def eval (e : Core) (env : Env) : Comp Value := do
+/-- Type alias for the primop dispatcher injected by callers.
+    Concrete table lives in `Foundation.Initial`. -/
+abbrev PrimopDispatch := String → List Value → Comp Value
+
+partial def eval (prim : PrimopDispatch) (e : Core) (env : Env) : Comp Value := do
   match e with
   | .var x =>
       match lookupEnv x env with
-      | some v => pure v
+      | some v => Comp.pure v
       | none   => Comp.perform (.readVar x)
-  | .lit (.float f) =>
-      pure (.num f)
+  | .lit (.float f) => Comp.pure (.num f)
+  | .lit (.str s)   => Comp.pure (.str s)
+  | .lit (.bool b)  => Comp.pure (.bool b)
   | .lam ps body =>
-      pure (.closure ps body env)
+      Comp.pure (.closure ps body env)
   | .letin x e₁ e₂ => do
-      let v ← eval e₁ env
-      eval e₂ ((x, v) :: env)
+      let v ← eval prim e₁ env
+      eval prim e₂ ((x, v) :: env)
   | .letrec x e₁ e₂ => do
-      let v ← eval e₁ ((x, .unit) :: env)
+      let v ← eval prim e₁ ((x, .unit) :: env)
       let v' := match v with
         | .closure ps b _ => .closure ps b ((x, v) :: env)
         | other            => other
-      eval e₂ ((x, v') :: env)
+      eval prim e₂ ((x, v') :: env)
   | .ifte c t e' => do
-      let cv ← eval c env
-      if truthy cv then eval t env else eval e' env
+      let cv ← eval prim c env
+      if truthy cv then eval prim t env else eval prim e' env
   | .seq a b => do
-      let _ ← eval a env
-      eval b env
+      let _ ← eval prim a env
+      eval prim b env
   | .app f args => do
-      let fv ← eval f env
+      let fv ← eval prim f env
       let argvs ← args.foldlM (init := ([] : List Value)) (fun acc a => do
-        let v ← eval a env
-        pure (acc ++ [v]))
+        let v ← eval prim a env
+        Comp.pure (acc ++ [v]))
       match fv with
       | .closure ps body capEnv =>
           let bindings := List.zip ps argvs
-          eval body (bindings ++ capEnv)
+          eval prim body (bindings ++ capEnv)
       | .builtin name =>
-          Comp.perform (.print s!"call {name}({argvs.length} args)")
+          prim name argvs
       | _ =>
           Comp.perform (.fail "call of non-function value")
 

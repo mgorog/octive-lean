@@ -45,10 +45,8 @@ mutual
     -- Atoms.  String / bool literals lower to calls of primitive
     -- coercion functions, since `Core.Lit` only carries floats.
     | .num n     => .lit (.float n)
-    | .str s     => .app (.var "str") [.lit (.float 0.0), .lit (.float 0.0) /-placeholder; primop reads from env-/]
-                    -- (string literals are a TODO — they need a separate Core variant
-                    -- or to be passed through a primop with a side channel)
-    | .bool b    => .app (.var (if b then "true" else "false")) []
+    | .str s     => .lit (.str s)
+    | .bool b    => .lit (.bool b)
     | .id x      => .var x
     -- Operators.  Each is `app (var "<primop>") [compile e₁, compile e₂]`.
     -- Invariant: evaluating the result reduces to evaluating the
@@ -63,9 +61,8 @@ mutual
     | .call f args =>
         .app (compileExpr f) (args.map compileIdx)
     | .field obj name =>
-        -- `obj.field` is `field(obj, "field")` in Core.  The primop
-        -- looks up the named field in a struct value.
-        .app (.var "field") [compileExpr obj, .lit (.float 0.0) /-placeholder for string-/]
+        -- `obj.field` is `field(obj, "field")` in Core.
+        .app (.var "field") [compileExpr obj, .lit (.str name)]
     | .matrix rows =>
         -- `[r₁; r₂; …]` is `matrix([row(c₁,c₂,…), row(…), …])`.
         let rowCores := rows.map (fun row => .app (.var "row") (row.map compileExpr))
@@ -101,29 +98,26 @@ mutual
         .app (.var "echo") [compileExpr e]
     | .exprS e .disp =>
         .app (.var "disp") [compileExpr e]
-    | .assign lhs rhs disp =>
+    | .assign lhs rhs dpy =>
         -- The LHS is either an `id` (simple), `call id args`
         -- (index assign), or `field e name` (field assign).  Each
         -- lowers to a distinct primop so the evaluator can do the
         -- right thing without inspecting Core shape.
         match lhs with
         | .id x =>
-            -- Simple assignment: `let x = compile rhs in echo|disp|silent`
-            -- We bind into the env via a primop `bind(name, value)`
-            -- because `letin` would not persist beyond this Stmt.
-            -- The interpreter intercepts `bind` to update env.
-            .seq (.app (.var "bind") [.var (s!"#name:{x}"), compileExpr rhs])
-                 (compileStmt (.exprS lhs disp))
+            -- Simple assignment: bind `x` in the env, then run the
+            -- display-modal statement form on the new binding.
+            .seq (.app (.var "bind") [.lit (.str x), compileExpr rhs])
+                 (compileStmt (.exprS lhs dpy))
         | .call f args =>
             .app (.var "indexAssign") (compileExpr f :: args.map compileIdx ++ [compileExpr rhs])
         | .field obj name =>
-            .app (.var "fieldAssign") [compileExpr obj, .lit (.float 0.0), compileExpr rhs]
+            .app (.var "fieldAssign") [compileExpr obj, .lit (.str name), compileExpr rhs]
         | _ =>
-            -- Anything else on the LHS is a surface error.  We surface
-            -- it as a runtime fail so the compile function stays total.
-            .app (.var "fail") [.lit (.float 0.0)]
-    | .massign names rhs disp =>
-        .app (.var "multiAssign") (compileExpr rhs :: names.map (fun n => .var s!"#name:{n}"))
+            .app (.var "fail") [.lit (.str "unsupported LHS")]
+    | .massign names rhs _ =>
+        .app (.var "multiAssign")
+             (compileExpr rhs :: names.map (fun n => .lit (.str n)))
     | .ifS cond thenB elifs elseB =>
         compileIf cond thenB elifs elseB
     | .forS i range body =>
@@ -150,20 +144,14 @@ mutual
               | none => .lam ["_"] (.app (.var "noop") [])
               | some (e, ss) => .lam [e] (compileStmts ss)]
     | .funDef fd =>
-        -- A function definition `function out = name(ins) body end`
-        -- becomes `letrec name = lam ins (compileBody) in
-        -- echo(noop)`.  The letrec body is the rest of the program;
-        -- since Stmt is one statement here, we don't have a "rest"
-        -- — the binding happens through the env-mutating `bind`
-        -- primop on the resulting lambda.
-        .app (.var "bind") [.var s!"#name:{fd.name}", .lam fd.ins (compileStmts fd.body)]
+        .app (.var "bind") [.lit (.str fd.name), .lam fd.ins (compileStmts fd.body)]
     | .retS    => .app (.var "return") []
     | .breakS  => .app (.var "break") []
     | .contS   => .app (.var "continue") []
     | .globalS xs =>
-        .app (.var "global") (xs.map (fun x => .var s!"#name:{x}"))
+        .app (.var "global") (xs.map (fun x => .lit (.str x)))
     | .clearS xs =>
-        .app (.var "clear") (xs.map (fun x => .var s!"#name:{x}"))
+        .app (.var "clear") (xs.map (fun x => .lit (.str x)))
 
   /-- A list of statements lowers to a right-nested `seq`. -/
   partial def compileStmts : List Stmt → Core
