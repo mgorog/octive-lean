@@ -68,10 +68,15 @@ elab "octs" : tactic => do
 
 /-! ## Inline-assertion macro: `octassert! { … ; assert <Lean expr> }`. -/
 
-/-! Inline assertions embedded in the Octave source are stripped
-    out of the program and emitted as Lean theorems alongside.
-    Currently a stub — extends `octProg!` once we have a proper
-    `assert` surface form. -/
+/-! ## A more readable assertion form: `name ↦ v`. -/
+
+/-- `binds! "y" ↦ v` reads better in some contexts than the unicode
+    `⇓bind` notation. -/
+def Binds (x : String) (v : Value) (p : Program) : Prop :=
+  bindsAfter p x v
+
+instance (x : String) (v : Value) (p : Program) : Decidable (Binds x v p) :=
+  inferInstanceAs (Decidable (bindsAfter p x v))
 
 /-! ## Program-with-theorem macro: `octthm! name { … } shows P`. -/
 
