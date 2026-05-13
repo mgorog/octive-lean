@@ -126,7 +126,17 @@ mutual
              [compileExpr range,
               .lam [i] (compileStmts body)]
     | .whileS cond body =>
-        .app (.var "loop") [.lam [] (compileExpr cond), .lam [] (compileStmts body)]
+        -- `while cond body end` compiles to a global-bound recursive
+        -- thunk. The closure is published to `RunState.env` via
+        -- `bind`; `_loop()` then looks it up there at every call,
+        -- which is how the recursion ties itself. `Eval.eval`'s fuel
+        -- bounds non-termination.
+        let loopBody : Core :=
+          .ifte (compileExpr cond)
+                (.seq (compileStmts body) (.app (.var "_loop") []))
+                (.app (.var "noop") [])
+        .seq (.app (.var "bind") [.lit (.str "_loop"), .lam [] loopBody])
+             (.app (.var "_loop") [])
     | .switchS val cases other =>
         -- Switch lowers to nested ifte on equality with each case.
         let mkChain : List (Expr × List Stmt) → Option (List Stmt) → Core := fun cs ot =>

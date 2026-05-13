@@ -26,29 +26,35 @@ variable (prim : PrimopDispatch)
 
 /-! ## Literals — pure values. -/
 
+@[simp]
 theorem eval_num (n : Float) (fuel : Nat) (env : Env) :
     eval prim (fuel + 1) (.lit (.float n)) env = pure (.num n) := rfl
 
+@[simp]
 theorem eval_str (s : String) (fuel : Nat) (env : Env) :
     eval prim (fuel + 1) (.lit (.str s)) env = pure (.str s) := rfl
 
+@[simp]
 theorem eval_bool (b : Bool) (fuel : Nat) (env : Env) :
     eval prim (fuel + 1) (.lit (.bool b)) env = pure (.bool b) := rfl
 
 /-! ## Lambda — captures the lexical environment. -/
 
+@[simp]
 theorem eval_lam (ps : List String) (body : Core) (fuel : Nat) (env : Env) :
     eval prim (fuel + 1) (.lam ps body) env =
       pure (.closure ps body env) := rfl
 
 /-! ## Sequencing — the second expression is the result. -/
 
+@[simp]
 theorem eval_seq (a b : Core) (fuel : Nat) (env : Env) :
     eval prim (fuel + 1) (.seq a b) env =
       (do let _ ← eval prim fuel a env; eval prim fuel b env) := rfl
 
 /-! ## Let — local binding extends the env. -/
 
+@[simp]
 theorem eval_letin (x : String) (e₁ e₂ : Core) (fuel : Nat) (env : Env) :
     eval prim (fuel + 1) (.letin x e₁ e₂) env =
       (do let v ← eval prim fuel e₁ env
@@ -56,6 +62,7 @@ theorem eval_letin (x : String) (e₁ e₂ : Core) (fuel : Nat) (env : Env) :
 
 /-! ## Conditional — strict on the condition; then-branch on truthy. -/
 
+@[simp]
 theorem eval_ifte (c t e : Core) (fuel : Nat) (env : Env) :
     eval prim (fuel + 1) (.ifte c t e) env =
       (do let cv ← eval prim fuel c env
